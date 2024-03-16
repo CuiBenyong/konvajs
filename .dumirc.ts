@@ -22,7 +22,7 @@ export default defineConfig({
     // ga_v2: '',
   },
   sitemap: {
-    hostname: 'https://cuiby.top',
+    hostname: 'https://front-end-js.top',
   },
   hash: true,
   exportStatic: {},
