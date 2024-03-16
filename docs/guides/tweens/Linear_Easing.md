@@ -1,0 +1,84 @@
+---
+order: 1
+group:
+  title: 补间动画
+  order: 10
+title:  线性缓动
+description: ''
+keywords: []
+---
+要使用Konva在不同的属性值之间做动画，我们可以先实例化一个`Konva.Tween`对象. 然后调用`play()`方法启动它。无论是`Shape`,
+`Group`, `Layer`, 还是`Stage`, 它们的任何数值型的属性都可以通过这种方式添加过渡动画, 比如`x`, `y`, `rotation`,
+`width`, `height`, `radius`, `strokeWidth`, `opacity`, `scaleX`, `offsetX`等
+
+有关Konva.Tween的属性和方法的完整列表，请查看
+[Konva.Tween 文档](https://konvajs.github.io/api/Konva.Tween.html)。
+
+<iframe src="/downloads/code/tweens/Linear_Easing.html" style="width: 50vw;height:300px;"></iframe>
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.rawgit.com/konvajs/konva/1.4.0/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Linear Easing Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #F0F0F0;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <script>
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+    
+    var stage = new Konva.Stage({
+      container: 'container',
+      width: width,
+      height: height
+    });
+
+    var layer = new Konva.Layer();
+
+    var rect = new Konva.Rect({
+        x: 50,
+        y: 20,
+        width: 100,
+        height: 50,
+        fill: 'green',
+        stroke: 'black',
+        strokeWidth: 2,
+        opacity: 0.2
+    });
+
+    layer.add(rect);
+    stage.add(layer);
+
+    // the tween has to be created after the node has been added to the layer
+    var tween = new Konva.Tween({
+        node: rect,
+        duration: 1,
+        x: 140,
+        y: 90,
+        fill : 'red',
+        rotation: Math.PI * 2,
+        opacity: 1,
+        strokeWidth: 6,
+        scaleX: 1.5
+    });
+
+    // start tween after 2 seconds
+    setTimeout(function() {
+        tween.play();
+    }, 2000);
+  </script>
+
+</body>
+</html>
+```
