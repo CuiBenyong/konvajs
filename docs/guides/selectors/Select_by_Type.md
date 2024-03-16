@@ -13,7 +13,7 @@ keywords: []
 这个返回数组是一个`Konva.Collection`数组，也是一个典型的JavaScript数组，有一个特殊的`each()`方法。
 这个`each()`方法使我们能够快速遍历数组中的每个节点。
 
-<iframe src="/downloads/code/performance/Select_by_Type.html" style="width: 50vw;height:300px;"></iframe>
+<iframe src="/downloads/code/selectors/Select_by_Type.html" style="width: 50vw;height:300px;"></iframe>
 
 ```html
 <!DOCTYPE html>

@@ -16,7 +16,7 @@ keywords: []
 
 说明：按下“激活矩形”按钮，通过id选择矩形并执行过渡动画。 您也可以拖拽矩形。
 
-<iframe src="/downloads/code/performance/Select_by_id.html" style="width: 50vw;height:300px;"></iframe>
+<iframe src="/downloads/code/selectors/Select_by_id.html" style="width: 50vw;height:300px;"></iframe>
 
 ```html
 <!DOCTYPE html>
