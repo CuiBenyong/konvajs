@@ -8,10 +8,10 @@ export default defineConfig({
     logo: 'https://cdn.jsdelivr.net/gh/CuiBenyong/resources@main/images/konva.png',
     prefersColor: { default: 'auto' },
     socialLinks: {
-      github: 'https://github.com/CuiBenyong/cc-doc'
+      github: 'https://github.com/CuiBenyong/konvajs'
     },
     hd: { rules: [] },
-    footer: 'Made with ❤️ by <a href="https://github.com/CuiBenyong/cc-doc" target="_blank" nofollow>Konva.js 中文文档</a>'
+    footer: 'Made with ❤️ by <a href="https://github.com/CuiBenyong/konvajs" target="_blank" nofollow>Konva.js 中文文档</a>'
   },
   theme: {
     '@c-primary': '#4078c0',
