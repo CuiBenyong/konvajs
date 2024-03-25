@@ -67,7 +67,7 @@ const DocLayout: FC = () => {
           <meta property="og:description" content={fm.description} />
         )}
         {fm.keywords && fm.keywords.map(keyword => (<meta key={keyword} property="article:tag" content={keyword}></meta>))}
-        <link rel="canonical" href={window.location.origin + pathname}></link>
+        {/* <link rel="canonical" href={window.location.origin + pathname}></link> */}
       </Helmet>
       <Header />
       <Hero />
