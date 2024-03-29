@@ -24,7 +24,7 @@ For all available filters go to [Filters Documentation](https://konvajs.github.i
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="https://rawgit.com/konvajs/konva/master/konva.js"></script>
+  <script src="https://unpkg.com/konva@9.3.6/konva.min.js"></script>
   <meta charset="utf-8">
   <title>Konva RGBA Image Demo</title>
   <style>
