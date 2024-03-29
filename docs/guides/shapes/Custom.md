@@ -21,7 +21,7 @@ T要使用`Konva`创建自定义形状, 我们可以实例化一个`Konva.Shapew
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="https://cdn.rawgit.com/konvajs/konva/1.4.0/konva.min.js"></script>
+  <script src="https://unpkg.com/konva@9.3.6/konva.min.js"></script>
   <meta charset="utf-8">
   <title>Konva Custom Shape Demo</title>
   <style>

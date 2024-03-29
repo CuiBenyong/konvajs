@@ -25,7 +25,6 @@ export default defineConfig({
     hostname: 'https://front-end-js.top',
   },
   hash: true,
-  ssr:{},
   exportStatic: {},
   // ...(process.env.NODE_ENV === 'development' ? {} : { ssr: {} }),
   headScripts: [
