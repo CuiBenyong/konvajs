@@ -7,7 +7,7 @@ title:  复杂补间动画
 description: ''
 keywords: []
 ---
-你还可以使用 [GreenSock Konva Plugin](https://github.com/konvajs/greensock-plugin){target="_blank"} 插件添加更为复杂的tween动画, GreenSock tweens 要比Konva 自带的tween 功能强大得多
+你还可以使用 <a href="https://github.com/konvajs/greensock-plugin" target="__blank">GreenSock Konva Plugin</a> 插件添加更为复杂的tween动画, GreenSock tweens 要比Konva 自带的tween 功能强大得多
 
 下面的示例演示了如何使用GreenSock给形状的 `fillLinearGradientColorStops` 属性设置动画效果
 

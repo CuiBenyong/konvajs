@@ -9,7 +9,7 @@ keywords: []
 ---
 要使用`Konva`添加文本路径, 我们可以实例化一个`Konva.TextPath()`对象.
 
-有关属性和方法的完整列表,请参阅[Konva.TextPath](https://konvajs.github.io/api/Konva.TextPath.html){target="_blank"}文档
+有关属性和方法的完整列表,请参阅<a href="https://konvajs.github.io/api/Konva.TextPath.html" target="__blank">Konva.TextPath</a>文档
 
 
 <iframe src="/downloads/code/shapes/TextPath.html" style="width: 50vw;height:300px;"></iframe>

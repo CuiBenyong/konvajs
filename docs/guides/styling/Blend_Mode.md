@@ -8,7 +8,7 @@ description: ''
 keywords: []
 ---
 
-[globalCompositeOperation](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/globalCompositeOperation){target="_blank"} 文档.
+<a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/globalCompositeOperation" target="__blank">globalCompositeOperation</a>文档.
 在 Konva 里你可以通过 `globalCompositeOperation` 属性来设置 `globalCompositeOperation` 和 混合模式。
 
 说明：拖动红色矩形到文字上面看看。

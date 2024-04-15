@@ -11,7 +11,7 @@ keywords: []
 
 当我们要将SVG路径导出到HTML5 Canvas,或者想将复杂的绘图显示为数据字符串而不是自定义形状时,路径是最常用的.
 
-有关属性和方法的完整列表,请参阅[Konva.Path](https://konvajs.github.io/api/Konva.Path.html){target="_blank"}文档
+有关属性和方法的完整列表,请参阅<a href="https://konvajs.github.io/api/Konva.Path.html" target="__blank">Konva.Path</a>文档
 
 <iframe src="/downloads/code/shapes/Path.html" style="width: 50vw; height: 200px;"></iframe>
 

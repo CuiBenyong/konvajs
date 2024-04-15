@@ -26,8 +26,9 @@ yarn add konva
 
 或者通过CDN下载
 
-完整版[konva.js](https://unpkg.com/konva@9.3.6/konva.js){target="_blank"}  
-压缩版[konva.min.js](https://unpkg.com/konva@9.3.6/konva.min.js){target="_blank"}
+完整版<a href="https://unpkg.com/konva@9.3.6/konva.js" target="__blank">konva.js</a>
+
+压缩版<a href="https://unpkg.com/konva@9.3.6/konva.min.js" target="__blank">konva.min.js</a>
 
 ## 工作原理
 
@@ -166,12 +167,12 @@ circle.on('mouseout touchend', function() {
 	    console.log('drag stopped');
 	});  
 ```
-查看 [working example](https://konvajs.github.io/docs/events/Binding_Events.html){target="_blank"}.
+查看 <a href="https://konvajs.github.io/docs/events/Binding_Events.html" target="__blank">working example</a>
 
 ## 拖拽和释放  *DRAG AND DROP*
 
 `Konvajs`没有内建的拖拽支持，现在并没有任何拖拽事件（drop,dragenter,dragleave,dragover)
-但是,[利用框架，可以轻易地实现这个机制](http://konvajs.github.io/docs/drag_and_drop/Drop_Events.html){target="_blank"}。
+但是,<a href="http://konvajs.github.io/docs/drag_and_drop/Drop_Events.html" target="__blank" >利用框架，可以轻易地实现这个机制。</a>
 
 启用拖拽只需要设置draggable属性为true。  
 
@@ -179,12 +180,12 @@ circle.on('mouseout touchend', function() {
     shape.draggable('true');
 ```
 
-然后你就可以支持拖拽事件，并[设置移动区域的限制](http://konvajs.github.io/docs/drag_and_drop/Complex_Drag_and_Drop.html){target="_blank"}。
+然后你就可以支持拖拽事件，并<a href="http://konvajs.github.io/docs/drag_and_drop/Complex_Drag_and_Drop.html" target="__blank" >设置移动区域的限制</a>。
 
 
 ## 滤镜 *Filters*
 
-`Konvajs`有多重滤镜：模糊，反色，杂色等，[Filters API](http://konvajs.github.io/api/Konva.Filters.html){target="_blank"}收录了所有的滤镜。
+`Konvajs`有多重滤镜：模糊，反色，杂色等，<a href="http://konvajs.github.io/api/Konva.Filters.html" target="__blank">Filters API</a>收录了所有的滤镜。
 
 示例:  
 ![Filter](/assets/overview-filter.png)
@@ -278,12 +279,12 @@ Tween则是描述间隔时间、属性变化之后，让框架自行更新数据
 ```js
 shape.cache();
 ```
-[Demo](https://konvajs.github.io/docs/performance/Shape_Caching.html){target="_blank"}  
+<a href="https://konvajs.github.io/docs/performance/Shape_Caching.html" target="__blank">Demo</a>
+
 【译注】：Canvas的矢量绘制性能很差，而位图绘制则稍好。所以将复杂的图形先保存到图片或者另外的画布中，然后做完位图绘制到主画布上，是很常见的优化手法 .
    
 分层 由于框架支持多个`<canvas>`元素，您可以自由放置对象。
 例如，您的应用程序由复杂的背景和几种移动的形状组成。 您可以使用一层作为背景，另一层用于形状。
-更新形状时，您不需要更新背景画布 [Demo](https://konvajs.github.io/docs/performance/Layer_Management.html){target="_blank"}
+更新形状时，您不需要更新背景画布 <a href="https://konvajs.github.io/docs/performance/Layer_Management.html" target="__blank">Demo</a>
 
-你可以在这里看到所有可用的性能建议：
-[https://konvajs.github.io/docs/performance/All_Performance_Tips.html](https://konvajs.github.io/docs/performance/All_Performance_Tips.html){target="_blank"}
+<a href="https://konvajs.github.io/docs/performance/All_Performance_Tips.html" target="__blank">All_Performance_Tips</a>

@@ -43,5 +43,5 @@ yarn add konva
 
 或者通过CDN下载
 
-完整版[konva.js](https://unpkg.com/konva@9.3.6/konva.js){target="_blank"}  
-压缩版[konva.min.js](https://unpkg.com/konva@9.3.6/konva.min.js){target="_blank"}
+完整版<a href="https://unpkg.com/konva@9.3.6/konva.js" target="_blank">konva.js</a>
+压缩版<a href="https://unpkg.com/konva@9.3.6/konva.min.js" target="_blank">konva.min.js</a>
