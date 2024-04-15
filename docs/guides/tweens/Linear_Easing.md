@@ -12,7 +12,7 @@ keywords: []
 `width`, `height`, `radius`, `strokeWidth`, `opacity`, `scaleX`, `offsetX`等
 
 有关Konva.Tween的属性和方法的完整列表，请查看
-[Konva.Tween 文档](https://konvajs.github.io/api/Konva.Tween.html)。
+[Konva.Tween 文档](https://konvajs.github.io/api/Konva.Tween.html){target="_blank"}。
 
 <iframe src="/downloads/code/tweens/Linear_Easing.html" style="width: 50vw;height:300px;"></iframe>
 

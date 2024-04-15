@@ -13,7 +13,7 @@ keywords: []
 
 本教程演示了Konva提供的所有缓动函数集，包括Linear, Ease, Back, Elastic, Bounce, and Strong.。
 
-有关所有可用的缓动函数，请访问[Easings 文档](https://konvajs.github.io/api/Konva.Easing.html)。
+有关所有可用的缓动函数，请访问[Easings 文档](https://konvajs.github.io/api/Konva.Easing.html){target="_blank"}。
 
 说明：鼠标悬浮或者直接触摸下面的盒子, 它们会分别以不同的缓动函数做动画
 
