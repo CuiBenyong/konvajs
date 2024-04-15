@@ -9,7 +9,6 @@ nav:
 ---
 
 ## 帮助
-加入我们[Gittip Chat](https://gitter.im/konvajs/konva)  
 
 * 提出你的问题在[StackOverflow](https://stackoverflow.com/questions/tagged/konvajs)
 * 如果你发现bug 请添加请求在[Issues Page](https://github.com/konvajs/konva/issues)
