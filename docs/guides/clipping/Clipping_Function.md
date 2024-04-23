@@ -11,7 +11,7 @@ keywords: []
 属性，包括组，图层或舞台。
 剪切区域由`x`，`y`，宽度和高度定义。 在本教程中，
 我们将在应用于组的矩形剪裁区域内绘制不规则图形。
-更多裁剪方法. [点击查看](https://konvajs.github.io/docs/clipping/Clipping_Function.html)
+更多裁剪方法. <a href="https://konvajs.github.io/docs/clipping/Clipping_Function.html" target="__blank">点击查看</a>
 
 
 <iframe src="/downloads/code/clipping/Clipping_Function.html" style="width: 50vw;height:300px;"></iframe>

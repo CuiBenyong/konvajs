@@ -16,7 +16,7 @@ keywords: []
 动画函数中只需要包含在动画中要更新的节点属性，例如`position`, `rotation`, `scale`, `width`, `height`, `radius`, `colors`等。
 一旦动画被创建，我们可以随时使用`start()`方法启动它。
 
-有关Konva.Animation的属性和方法的完整列表，请查看[Konva.Animation文档](https://konvajs.github.io/api/Konva.Animation.html)。
+有关Konva.Animation的属性和方法的完整列表，请查看<a href="https://konvajs.github.io/api/Konva.Animation.html" target="__blank">Konva.Animation文档。</a>
 
 
 ##HTML5 Canvas Konva Animation 模板

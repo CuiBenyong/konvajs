@@ -12,7 +12,7 @@ keywords: []
 
 在本教程中，我们将围绕左上角旋转一个蓝色矩形，围绕其自身中心点旋转一个黄色矩形，以及围绕一个外部点旋转一个红色矩形。
 
-有关Konva.Animation的属性和方法的完整列表，请查看[Konva.Animation文档](https://konvajs.github.io/api/Konva.Animation.html)。
+有关Konva.Animation的属性和方法的完整列表，请查看<a href="https://konvajs.github.io/api/Konva.Animation.html" target="__blank">Konva.Animation文档</a>。
 
 <iframe src="/downloads/code/animations/Rotation.html" style="width: 50vw;height:300px;"></iframe>
 

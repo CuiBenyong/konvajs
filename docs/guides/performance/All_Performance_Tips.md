@@ -11,7 +11,7 @@ keywords: []
 
 
 1. <a href="https://konvajs.github.io/docs/performance/Batch_Draw.html" target="_blank">`batchDraw` 方法</a>
-2. <a href="(https://konvajs.github.io/docs/performance/Layer_Management.html" target="__blank" >图层管理</a>
+2. <a href="https://konvajs.github.io/docs/performance/Layer_Management.html" target="__blank" >图层管理</a>
 3. <a href="https://konvajs.github.io/docs/performance/Shape_Caching.html" target="__blank">形状缓存</a>
 4. <a href="https://konvajs.github.io/docs/performance/Optimize_Animation.html" target="__blank">动画优化</a>
 5. <a href="https://konvajs.github.io/docs/performance/Shape_Redraw.html" target="__blank">形状重绘</a>

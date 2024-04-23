@@ -12,7 +12,7 @@ keywords: []
 
 说明：单击“开始”开始动画，单击“停止”停止动画。
 
-有关Konva.Animation的属性和方法的完整列表，请查看[Konva.Animation文档](https://konvajs.github.io/api/Konva.Animation.html)。
+有关Konva.Animation的属性和方法的完整列表，请查看<a href="https://konvajs.github.io/api/Konva.Animation.html" target="__blank">Konva.Animation文档</a>。
 
 
 <iframe src="/downloads/code/animations/Stop_Animation.html" style="width: 50vw;height:300px;"></iframe>

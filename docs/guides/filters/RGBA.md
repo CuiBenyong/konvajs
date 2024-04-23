@@ -12,11 +12,11 @@ keywords: []
 然后使用滤镜在`filter（）`函数。  
 
 要使用`Konva`更改图像的rgba组合，我们可以使用`Konva.Filters.RGBA`。  
-查看所有可用的滤镜，请查看[滤镜](https://konvajs.github.io/api/Konva.Filters.html)文档。  
+查看所有可用的滤镜，请查看<a href="https://konvajs.github.io/api/Konva.Filters.html" target="__blank">滤镜文档</a>。  
 
 说明：滑动控件以更改rgba值。 
 
-For all available filters go to [Filters Documentation](https://konvajs.github.io/api/Konva.Filters.html).
+For all available filters go to<a href="https://konvajs.github.io/api/Konva.Filters.html" target="__blank">Filters Documentation</a>.
 
 <iframe src="/downloads/code/filters/RGBA.html" style="width: 50vw;height:300px;"></iframe>
 

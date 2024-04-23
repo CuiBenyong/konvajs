@@ -12,7 +12,7 @@ keywords: []
 
 要使用`Konva`反转图像的颜色，我们可以使用 `Konva.Filters.Invert`滤镜. 
 
-查看所有可用的滤镜，请查看[滤镜文档](https://konvajs.github.io/api/Konva.Filters.html)。 
+查看所有可用的滤镜，请查看<a href="https://konvajs.github.io/api/Konva.Filters.html" target="__blank">滤镜文档</a>。 
 
 <iframe src="/downloads/code/filters/Invert.html" style="width: 50vw;height:300px;"></iframe>
 

@@ -17,7 +17,7 @@ keywords: []
 亮度属性`brightness`可以设置为-1和1之间的任何整数。
 负值使图像变暗，正值使图像变亮。 
 
-查看所有可用的滤镜，请查看[滤镜](https://konvajs.github.io/api/Konva.Filters.html)文档。 
+查看所有可用的滤镜，请查看<a href="https://konvajs.github.io/api/Konva.Filters.html" target="__blank">滤镜</a>文档。 
 
 
 说明：滑动控制旋钮调整亮度  

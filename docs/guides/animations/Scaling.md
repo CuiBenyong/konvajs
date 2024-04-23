@@ -14,7 +14,7 @@ keywords: []
 
 说明：在六边形做动画的同时, 您也能拖拽它们
 
-有关Konva.Animation的属性和方法的完整列表，请查看[Konva.Animation文档](https://konvajs.github.io/api/Konva.Animation.html)。
+有关Konva.Animation的属性和方法的完整列表，请查看<a href="https://konvajs.github.io/api/Konva.Animation.html" target="__blank">Konva.Animation文档</a>。
 
 
 <iframe src="/downloads/code/animations/Scaling.html" style="width: 50vw;height:300px;"></iframe>
