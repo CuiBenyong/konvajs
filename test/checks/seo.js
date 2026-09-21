@@ -59,7 +59,14 @@ module.exports = {
       const mods = (xml.match(/<lastmod>/g) || []).length;
       if (locs === 0) problems.push('sitemap.xml 没有任何条目');
       // lastmod 是少数几个 Google 确实会参考的 sitemap 字段。
-      if (mods < locs) problems.push(`sitemap 有 ${locs} 条 loc 但只有 ${mods} 条 lastmod`);
+      if (mods < locs) {
+        // lastmod 来自 git 提交记录（docs 的 showLastUpdateTime）。缺失通常
+        // 意味着该文件还没 git add——新增页面在首次提交前必然命中这一条。
+        problems.push(
+          `sitemap 有 ${locs} 条 loc 但只有 ${mods} 条 lastmod。` +
+            `lastmod 取自 git 提交记录，缺失多半是有页面尚未 git add`
+        );
+      }
       if (/front-end-js\.tops/.test(xml)) problems.push('sitemap 中出现拼写错误的域名');
       // sitemap 条目数应与实际页面数相当。差得太多说明有页面被漏掉或多收录。
       const pages = ctx.docHtml().length;

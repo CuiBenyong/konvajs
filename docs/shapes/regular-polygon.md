@@ -9,6 +9,26 @@ sidebar_position: 18
 有关属性和方法的完整列表,请参阅<a href="https://konvajs.org/api/Konva.RegularPolygon.html" target="_blank" >Konva.RegularPolygon</a>文档
 
 
+## 圆角
+
+Konva 10 起 `RegularPolygon` 支持 `cornerRadius`，可以把正多边形的尖角磨圆：
+
+```js
+const hexagon = new Konva.RegularPolygon({
+  x: 100,
+  y: 100,
+  sides: 6,
+  radius: 70,
+  fill: 'red',
+  stroke: 'black',
+  strokeWidth: 4,
+  cornerRadius: 10,
+});
+```
+
+`cornerRadius` 不能为负值。Konva 10.4.0 之前负的 `radius` 或 `cornerRadius`
+会在绘制时抛错，并导致它之后的图形全部不显示；10.4.0 起改为拒绝该值而不再中断绘制。
+
 <iframe src="/downloads/code/shapes/RegularPolygon.html" style="width: 50vw; height: 300px;"></iframe>
 
 ```html

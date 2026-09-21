@@ -92,3 +92,31 @@ sidebar_position: 11
 </body>
 </html>
 ```
+
+## 逐字渲染
+
+Konva 10 提供 `charRenderFunc`，可以对每个字符单独控制绘制。回调里设置的
+`fillStyle` / `strokeStyle` 对该字符生效，优先级高于图形本身的属性：
+
+```js
+const text = new Konva.Text({
+  x: 20,
+  y: 20,
+  text: '逐字上色',
+  fontSize: 40,
+  charRenderFunc: (ctx, charInfo) => {
+    ctx.fillStyle = charInfo.index % 2 === 0 ? '#4078c0' : '#c04040';
+    ctx.fillText(charInfo.char, charInfo.x, charInfo.y);
+  },
+});
+```
+
+## 字素感知排版
+
+Konva 10.4.0 起，文本排版按字素（grapheme）而非 UTF-16 码元处理。这解决了
+中文与表情场景下的两类老问题：国旗 emoji 与 ZWJ 组合表情（如 👨‍👩‍👧）不会再被
+从中间拆开，`letterSpacing` 也改为每个字素加一次间距，而不是每个码元加一次。
+
+如果你的布局依赖旧的按码元计算的间距值，升级到 10.4.0 后含 emoji 的文本
+宽度会变化，需要重新确认排版。
+

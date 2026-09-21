@@ -36,3 +36,20 @@ circle.to({
     duration : 0.5
 });
 ```
+
+## 监听节点销毁
+
+Konva 10.4.0 起，`node.destroy()` 开始时会触发 `destroy` 事件。这让你可以在
+节点被销毁的那一刻清理挂在它身上的外部资源，例如定时器、订阅或缓存：
+
+```js
+shape.on('destroy', () => {
+  clearInterval(timerId);
+  unsubscribe();
+});
+```
+
+框架内部也用到了这个事件：`Transformer` 会把被销毁的节点从 `nodes()` 中移除，
+`Tween` 会停止该节点上的补间。在 10.4.0 之前，销毁一个正被 Transformer 选中
+或正在补间的节点会留下悬空引用。
+
