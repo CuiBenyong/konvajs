@@ -12,6 +12,11 @@ npm run serve       # 本地预览构建产物
 npm run demo-health # 用真实 Chrome 跑一遍全部演示页
 ```
 
+```bash
+node test/lib/content-stats.mjs   # 按章节统计散文字数与广告位达标情况
+node test/lib/text-shots.mjs      # 给含文本的演示截图，供人工复核排版
+```
+
 `demo-health` 用 `playwright-core` 驱动本机已安装的 Chrome，不下载 Chromium。
 
 要求 Node ≥ 20。
@@ -45,6 +50,7 @@ npm run verify     # 只跑检查器（需先 build）
 | `demos` | iframe 指向的演示文件存在，且页面名与演示名一致 |
 | `konva-version` | 全站无旧版本残留，统一为浮动大版本 `konva@10` |
 | `demo-health` | 真实 Chrome 加载全部演示，无控制台错误且画布非空 |
+| `originality` | 页面三段结构、原创小节字数、FAQ 问句格式。生效范围由 `ENFORCED_PREFIXES` 控制 |
 
 ## 需要配置的凭据
 
