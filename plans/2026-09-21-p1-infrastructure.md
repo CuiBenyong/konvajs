@@ -31,6 +31,7 @@
 | 文件 | 职责 |
 |---|---|
 | `package.json` | 依赖与脚本，重写 |
+| `siteMeta.ts` | 站点 URL 与描述常量，供配置与插件共用 |
 | `docusaurus.config.ts` | 站点配置、结构化数据、headTags、广告脚本 |
 | `sidebars.ts` | 侧边栏结构，映射原 12 个 group |
 | `tsconfig.json` | 继承 `@docusaurus/tsconfig` |
@@ -51,6 +52,7 @@
 | `static/assets/**`、`static/downloads/**` | 原样迁移 |
 | `netlify.toml` | 安全响应头 |
 | `test/verify.js` | 检查器驱动 |
+| `test/lib/audit.mjs` | 依赖漏洞审计，直连 npm 批量通告接口 |
 | `test/checks/*.js` | 各项验收 |
 | `scripts/migrate-docs.mjs` | 一次性迁移脚本，产出后保留以备复核 |
 
@@ -218,6 +220,8 @@ git commit -m "test: 新增验收框架与构建健全性检查"
 - Create: `src/css/custom.css`
 - Create: `src/pages/index.tsx`
 - Delete: `.dumirc.ts`、`.dumi/`（整目录）
+- Create: `siteMeta.ts`
+- Create: `test/lib/audit.mjs`
 - Create: `test/checks/deps.js`
 - Modify: `test/verify.js`（注册 `deps` 检查器）
 
@@ -228,13 +232,19 @@ git commit -m "test: 新增验收框架与构建健全性检查"
   - 构建输出目录为 `build/`
   - npm scripts：`build`、`start`、`verify`、`check`
 
-- [ ] **Step 1: 写依赖检查（先失败）**
+- [ ] **Step 1: 写依赖审计辅助与依赖检查（先失败）**
 
-创建 `test/checks/deps.js`：
+先创建 `test/lib/audit.mjs`，它输出一行 JSON：成功为
+`{ ok: true, counts: {critical,high,moderate,low}, findings: [...] }`，
+失败为 `{ ok: false, error: "原因" }`。**两者必须区分——审计跑不起来不等于没有漏洞。**
+完整实现见仓库中的该文件。
+
+再创建 `test/checks/deps.js`：
 
 ```js
 'use strict';
-const { execSync } = require('child_process');
+const path = require('path');
+const { execFileSync } = require('child_process');
 
 // 与规格 §8 的版本下限一一对应。
 const REQUIRED = {
@@ -264,23 +274,44 @@ module.exports = {
       if (all[name]) problems.push(`遗留依赖 ${name} 未移除`);
     }
 
-    // npm audit 的退出码在有漏洞时非 0，execSync 会抛异常。
-    // 用 --audit-level=moderate 把门槛定在中危，与规格 §8 一致。
+    // 审计走 test/lib/audit.mjs，不走 npm audit CLI。
+    //
+    // 本项目的 npm registry 指向 npmmirror 镜像，该镜像未实现 audit 接口
+    // （返回 "[NOT_IMPLEMENTED] /-/npm/v1/security/*"）；而加
+    // --registry=https://registry.npmjs.org 会让 npm 用官方源重新解析全部
+    // 一千多个包的元数据，实测长时间不返回。audit.mjs 直接调用 npm audit
+    // 内部用的批量通告接口，一次请求秒级返回，且不受本地 registry 配置影响。
+    let report;
     try {
-      execSync('npm audit --audit-level=moderate --json', {
+      const out = execFileSync(process.execPath, [path.join(ctx.root, 'test/lib/audit.mjs')], {
         cwd: ctx.root,
+        encoding: 'utf8',
         stdio: ['ignore', 'pipe', 'ignore'],
       });
+      report = JSON.parse(out);
     } catch (err) {
-      let summary = '未知';
-      try {
-        const report = JSON.parse(err.stdout.toString());
-        const v = report.metadata.vulnerabilities;
-        summary = `critical ${v.critical} / high ${v.high} / moderate ${v.moderate}`;
-      } catch {
-        // audit 输出不是合法 JSON 时保留「未知」，不因解析失败而掩盖漏洞。
+      problems.push(`无法运行依赖审计：${err.message}`);
+      return problems;
+    }
+
+    if (!report.ok) {
+      // 审计跑不起来不等于没有漏洞。这里必须报为问题，
+      // 否则网络故障会被静默当成「安全」。
+      problems.push(`依赖审计未能完成：${report.error}`);
+      return problems;
+    }
+
+    for (const severity of ['critical', 'high', 'moderate']) {
+      const n = report.counts[severity] || 0;
+      if (n > 0) {
+        const hits = report.findings
+          .filter((f) => f.severity === severity)
+          .map((f) => `${f.name}@${f.range}（${f.title}）`);
+        problems.push(`${severity} 漏洞 ${n} 个：${hits.join('；')}`);
       }
-      problems.push(`npm audit 未通过：${summary}`);
+    }
+    if (report.counts.low > 0) {
+      console.log(`          提示：另有 ${report.counts.low} 个低危漏洞，不阻断构建`);
     }
 
     return problems;
@@ -340,11 +371,30 @@ Expected: FAIL，`依赖与安全` 报告 `缺少依赖 @docusaurus/core`、`遗
     "production": [">0.5%", "not dead", "not op_mini all"],
     "development": ["last 3 chrome version", "last 3 firefox version", "last 5 safari version"]
   },
+  "overrides": {
+    "serialize-javascript": "^7.1.1",
+    "uuid": "^11.1.1"
+  },
   "engines": {
     "node": ">=20.0"
   }
 }
 ```
+
+**关于 `overrides`**：这两个包都是 Docusaurus 3.10.2 的传递依赖，且都只在构建期
+使用——`serialize-javascript` 来自 `copy-webpack-plugin` 与
+`css-minimizer-webpack-plugin`，`uuid` 来自 `webpack-dev-server` → `sockjs`，
+均不进入浏览器产物。但审计接口在它们的默认版本（6.0.2 / 8.3.2）上报出三条通告：
+
+| 级别 | 包 | 问题 |
+|---|---|---|
+| high | serialize-javascript ≤7.0.2 | 经 RegExp.flags 与 Date.prototype.toISOString 的 RCE |
+| moderate | serialize-javascript <7.0.5 | 构造类数组对象导致 CPU 耗尽 DoS |
+| moderate | uuid <11.1.1 | v3/v5/v6 传入 buf 时缺少缓冲区边界检查 |
+
+规格 §8 的门槛是 0 高危 0 中危，因此用 `overrides` 强升。两者都跨了大版本
+（6→7、8→11），升级后必须验证两件事：`npm run build` 成功，且 `npm start`
+起的开发服务器能正常响应——`uuid` 影响的正是开发服务器依赖的 sockjs。
 
 - [ ] **Step 4: 写 tsconfig.json**
 
@@ -358,7 +408,28 @@ Expected: FAIL，`依赖与安全` 报告 `缺少依赖 @docusaurus/core`、`遗
 }
 ```
 
-- [ ] **Step 5: 写 docusaurus.config.ts**
+- [ ] **Step 5: 写 siteMeta.ts 与 docusaurus.config.ts**
+
+先建 `siteMeta.ts`。**不要把这两个常量作为具名导出放进 `docusaurus.config.ts`**——
+Docusaurus 会校验配置模块的导出字段，任何非配置项的具名导出都会让构建直接失败，
+报 `These field(s) ("SITE_URL",) are not recognized in docusaurus.config.ts`。
+
+```ts
+/**
+ * 站点级常量的唯一来源。
+ *
+ * 不放在 docusaurus.config.ts 里导出——Docusaurus 会校验配置模块的导出字段，
+ * 任何非配置项的具名导出都会让构建直接失败。放在独立模块里，配置与 plugins/
+ * 下的插件都从这里取值，避免同一个地址在多处重复硬编码后失去同步。
+ */
+
+export const SITE_URL = 'https://front-end-js.top'
+
+export const SITE_DESCRIPTION =
+  'Konva.js 中文文档。Konva 是基于 HTML5 Canvas 的 2D JavaScript 框架，支持图形绘制、事件、拖拽、变换、动画、滤镜与高性能缓存，适用于桌面与移动端的交互式图形应用。'
+```
+
+再写 `docusaurus.config.ts`：
 
 `Sandpack` 与结构化数据插件在后续任务接入，此处先留可构建的最小配置。`SITE_URL` 单独导出供检查器与插件复用。
 
@@ -366,13 +437,9 @@ Expected: FAIL，`依赖与安全` 报告 `缺少依赖 @docusaurus/core`、`遗
 import { themes as prismThemes } from 'prism-react-renderer'
 import type { Config } from '@docusaurus/types'
 import type * as Preset from '@docusaurus/preset-classic'
+import { SITE_URL, SITE_DESCRIPTION } from './siteMeta'
 
 // 这段代码运行在 Node.js 环境，不要在这里使用浏览器 API
-
-export const SITE_URL = 'https://front-end-js.top'
-
-const SITE_DESCRIPTION =
-  'Konva.js 中文文档。Konva 是基于 HTML5 Canvas 的 2D JavaScript 框架，支持图形绘制、事件、拖拽、变换、动画、滤镜与高性能缓存，适用于桌面与移动端的交互式图形应用。'
 
 const config: Config = {
   title: 'Konva.js 中文文档',

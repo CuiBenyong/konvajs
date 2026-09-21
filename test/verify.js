@@ -38,7 +38,7 @@ const ctx = {
     }),
 };
 
-const checks = [require('./checks/build-sanity')];
+const checks = [require('./checks/build-sanity'), require('./checks/deps')];
 
 let failed = 0;
 for (const check of checks) {

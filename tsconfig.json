@@ -1,17 +1,7 @@
 {
+  "extends": "@docusaurus/tsconfig",
   "compilerOptions": {
-    "strict": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "jsx": "react",
-    "baseUrl": "./",
-    "paths": {
-      "@@/*": [
-        ".dumi/tmp/*"
-      ]
-    }
+    "baseUrl": "."
   },
-  "include": [
-    ".dumirc.ts"
-  ]
+  "exclude": [".docusaurus", "build"]
 }

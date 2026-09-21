@@ -1,0 +1,32 @@
+:root {
+  --ifm-color-primary: #4078c0;
+  --ifm-color-primary-dark: #3a6cad;
+  --ifm-color-primary-darker: #3766a3;
+  --ifm-color-primary-darkest: #2d5486;
+  --ifm-color-primary-light: #5286c7;
+  --ifm-color-primary-lighter: #5d8ecb;
+  --ifm-color-primary-lightest: #7ba3d6;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #79a6dc;
+  --ifm-color-primary-dark: #5e94d5;
+  --ifm-color-primary-darker: #508bd1;
+  --ifm-color-primary-darkest: #2f72c0;
+  --ifm-color-primary-light: #94b8e3;
+  --ifm-color-primary-lighter: #a2c1e7;
+  --ifm-color-primary-lightest: #cddcf2;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+/* 正文中的演示 iframe。原 dumi 文档里写的是内联 style，
+   迁移后统一由这里控制，避免每页重复。 */
+.markdown iframe {
+  width: 100%;
+  max-width: 100%;
+  border: 1px solid var(--ifm-toc-border-color);
+  border-radius: 4px;
+  background: #f0f0f0;
+}

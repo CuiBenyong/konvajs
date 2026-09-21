@@ -1,22 +1,56 @@
 {
-  "name": "zizhudocs",
-  "version": "0.0.1",
-  "description": "react-dnd-cn",
+  "name": "konvajs-zh",
+  "version": "1.0.0",
+  "description": "Konva.js 中文文档",
+  "private": true,
   "scripts": {
-    "start": "npm run dev",
-    "dev": "dumi dev",
-    "build": "dumi build",
-    "prepare": "dumi setup"
+    "start": "docusaurus start",
+    "build": "docusaurus build",
+    "serve": "docusaurus serve",
+    "clear": "docusaurus clear",
+    "swizzle": "docusaurus swizzle",
+    "typecheck": "tsc",
+    "verify": "node test/verify.js",
+    "check": "npm run typecheck && npm run build && npm run verify"
   },
   "authors": [
     "cuibenyong@gmail.com"
   ],
   "license": "MIT",
+  "dependencies": {
+    "@docusaurus/core": "3.10.2",
+    "@docusaurus/preset-classic": "3.10.2",
+    "@mdx-js/react": "^3.1.1",
+    "clsx": "^2.1.1",
+    "prism-react-renderer": "^2.4.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
   "devDependencies": {
-    "@umijs/preset-dumi": "^1.1.54",
-    "core-js": "^3.31.0",
-    "dumi": "^2.2.17",
-    "gatsby-plugin-netlify": "^5.1.1",
-    "patch-package": "^7.0.0"
+    "@docusaurus/module-type-aliases": "3.10.2",
+    "@docusaurus/tsconfig": "3.10.2",
+    "@docusaurus/types": "3.10.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "typescript": "~5.9.3"
+  },
+  "browserslist": {
+    "production": [
+      ">0.5%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 3 chrome version",
+      "last 3 firefox version",
+      "last 5 safari version"
+    ]
+  },
+  "engines": {
+    "node": ">=20.0"
+  },
+  "overrides": {
+    "serialize-javascript": "^7.1.1",
+    "uuid": "^11.1.1"
   }
 }
