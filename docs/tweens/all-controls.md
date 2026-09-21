@@ -4,10 +4,13 @@ description: 'Konva.Tween 的播放控制：play() 播放、pause() 暂停、rev
 sidebar_position: 5
 ---
 
+Tween 提供完整的播放控制。几个方法的语义有细微差别，用错会得到意外的结果。
+
+## 用法
+
 要使用Konva播放，暂停，反转，重置，完成和查找tween动画，我们可以使用`play()`, `pause()`, `reverse()`, `reset()`, `finish()` 和 `seek()`方法。
 
 下面的教程演示了每一个操作。
-
 <iframe src="/downloads/code/tweens/All_Controls.html" style="width: 50vw;height:300px;"></iframe>
 
 ```html
@@ -124,3 +127,45 @@ sidebar_position: 5
 </body>
 </html>
 ```
+
+## 常见问题
+
+### pause 之后 play，是从头还是从暂停处继续？
+
+从暂停处继续。`pause()` 只是停住计时，内部进度保留。
+
+想从头开始要先 `reset()`——它把节点属性复位到起始值并把进度归零。
+`finish()` 则相反，直接跳到终点状态并触发 `onFinish`。
+
+### reverse 和新建一个反向 Tween 有区别吗？
+
+有。`reverse()` 是沿着**同一条缓动曲线倒着走**，所以 `EaseIn` 反向播放时
+呈现的是「先快后慢」，与 `EaseOut` 的曲线并不相同。
+
+新建一个从当前值到起始值的 Tween，则是重新应用一遍缓动，
+`EaseIn` 仍然是先慢后快。
+
+想要「原路返回」的物理感用 `reverse()`；想要每段都有一致的缓动手感，
+新建更合适。
+
+### 在 onUpdate 里调 pause 或 destroy 安全吗？
+
+现在安全了。Konva 10.4.0 之前，在 `onUpdate` 回调里调用 `pause()` 或 `destroy()`
+会让动画重新启动，`destroy()` 之后再调 `finish()` / `reset()` 还会抛错。
+
+该版本修复了这些问题。如果项目还在旧版本上，需要把这类操作延迟到
+回调之外执行，例如用 `setTimeout(..., 0)`。
+
+## 性能提示
+
+每个运行中的 Tween 都会被加入全局的动画循环，每帧计算一次进度并写属性。
+
+**用完即销毁**。`onFinish` 里调 `destroy()`，否则已完成的 Tween 仍然挂在
+内部列表里。少量无所谓，但「每次悬停创建一个」这类模式下会快速累积。
+
+**避免同时运行大量 Tween**。一百个节点各有一个 Tween，等于每帧一百次
+属性写入加一次图层重绘。这种场景更适合用一个 `Konva.Animation` 统一驱动，
+在一个回调里算完所有节点。
+
+**Tween 会触发图层重绘**。多个 Tween 作用在不同图层上时，每层都要重绘；
+尽量让同时运行的动画集中在同一图层。

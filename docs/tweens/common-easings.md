@@ -3,6 +3,11 @@ title: '简单的补间动画'
 description: 'Konva 常用缓动函数：EaseIn 由慢到快、EaseOut 由快到慢、EaseInOut 两头慢中间快，通过 Tween 的 easing 属性设置。'
 sidebar_position: 2
 ---
+
+缓动函数改变的是进度曲线，不是时长。同样 1 秒的动画，不同缓动的观感差别很大。
+
+## 用法
+
 要使用Konva创建一个非线性缓动的tween动画，我们可以将它的`easing`属性设置为其他类型的缓动函数。 除了`Konva.Easings.Linear`，其他常用的缓动函数有`Konva.Easings.EaseIn`,
 `Konva.Easings.EaseInOut`, 和 `Konva.Easings.EaseOut`。
 
@@ -12,7 +17,6 @@ sidebar_position: 2
 有关所有可用的缓动函数，请访问<a href="https://konvajs.org/api/Konva.Easing.html" target="_blank">Easings 文档</a>。
 
 说明：鼠标悬浮或者直接触摸下面的盒子, 它们会分别以不同的缓动函数做动画
-
 <iframe src="/downloads/code/tweens/Common_Easing.html" style="width: 50vw;height:300px;"></iframe>
 
 ```html
@@ -130,3 +134,41 @@ sidebar_position: 2
 </body>
 </html>
 ```
+
+## 常见问题
+
+### 缓动会改变动画时长吗？
+
+不会。`duration` 是多少就是多少，缓动只决定「这段时间里进度怎么分配」。
+
+`EaseIn` 是前慢后快——前半段走的距离少，后半段快速追上；
+`EaseOut` 相反。总时长完全一样。
+
+### 该选哪一种？
+
+有个经验规则：**物体进入视野用 EaseOut，离开视野用 EaseIn**。
+
+进入时一开始快、逐渐减速停下，符合物体有惯性的直觉；
+离开时先慢后快，像是被加速带走。反过来会显得别扭。
+
+两端都在画面内的位移（比如拖回原位）用 `EaseInOut`，
+两头慢中间快，是最自然的通用选择。
+
+### 线性缓动什么时候用？
+
+匀速运动的场合——进度条、加载动画、匀速旋转的齿轮。
+
+对于「物体移动」类的动画，线性通常显得机械，因为现实中的物体
+总有加速和减速的过程。但如果你要表达的就是机械感，线性是对的。
+
+## 与其他方案的取舍
+
+Konva 内置的缓动函数覆盖了常见需求，直接用就好。
+
+需要自定义时，`easing` 接受任意函数，签名是 `(t, b, c, d)`——当前时间、起始值、变化量、总时长，返回当前应有的值。
+这是 Robert Penner 缓动函数的经典签名，网上大量现成实现可以直接拿来用。
+
+如果你的项目里已经在用 GSAP、anime.js 这类动画库，也可以让它们驱动数值、
+在回调里写回 Konva 节点。但这样就绕过了 Konva 的 Tween，
+`pause()`、`reverse()` 这些控制要用那个库的 API。
+除非确实需要时间轴编排，否则不值得引入。
