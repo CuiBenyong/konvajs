@@ -5,6 +5,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext'
 import Layout from '@theme/Layout'
 import Heading from '@theme/Heading'
 import clsx from 'clsx'
+import AdUnit from '@site/src/components/Ad/AdUnit'
 import { SITE_DESCRIPTION } from '@site/siteMeta'
 import styles from './index.module.css'
 
@@ -68,6 +69,10 @@ export default function Home(): JSX.Element {
             </div>
           </div>
         </section>
+
+        <div className="container">
+          <AdUnit placement="articleBottom" />
+        </div>
       </main>
     </Layout>
   )
