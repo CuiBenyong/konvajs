@@ -39,6 +39,18 @@ const PAINT_POLL_MS = 6000
 const PAINT_POLL_INTERVAL_MS = 250
 
 /**
+ * 单个演示的重试次数。
+ *
+ * 演示页从 unpkg 加载 konva，网络抖动会让 networkidle 等待超时，
+ * 表现为「导航失败」这类与代码无关的假失败。实测同一个演示在一次运行中
+ * 超时、紧接着重跑就通过。
+ *
+ * 一次抖动不应该让 CI 假失败——那会让人逐渐忽略这项检查。
+ * 但重试全部失败时仍如实报错，绝不退化成「视为通过」。
+ */
+const MAX_ATTEMPTS = 3
+
+/**
  * 初始状态本就是空白画布的演示。
  *
  * Hide_and_Show 的图形以 visible: false 创建，要点按钮才显示——
@@ -110,8 +122,8 @@ const demos = (await collectDemos(DEMO_DIR)).sort()
 const browser = await chromium.launch({ channel: 'chrome', headless: true })
 const results = []
 
-for (const demo of demos) {
-  const rel = path.relative(STATIC_DIR, demo).split(path.sep).join('/')
+/** 跑一次某个演示，返回 { errors, canvasCount, painted }。 */
+async function probeDemo(rel) {
   const page = await browser.newPage({ viewport: { width: 900, height: 600 } })
   const errors = []
   page.on('console', (m) => {
@@ -154,15 +166,33 @@ for (const demo of demos) {
     errors.push(`导航失败：${e.message}`)
   }
   await page.close()
+  return { errors, canvasCount, painted }
+}
 
+for (const demo of demos) {
+  const rel = path.relative(STATIC_DIR, demo).split(path.sep).join('/')
   const blankIsFine = INTENTIONALLY_BLANK.has(rel)
+
+  let attempt
+  for (attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    var probe = await probeDemo(rel)
+    const passed =
+      probe.errors.length === 0 && probe.canvasCount > 0 && (probe.painted || blankIsFine)
+    if (passed) break
+    // 只对疑似网络问题重试。脚本报错是确定性的，重跑没有意义，
+    // 徒增三倍耗时。
+    const transient = probe.errors.some((e) => /导航失败|Timeout|net::|Failed to load/i.test(e))
+    if (!transient) break
+  }
+
   results.push({
     file: rel,
-    ok: errors.length === 0 && canvasCount > 0 && (painted || blankIsFine),
-    errors,
-    canvasCount,
-    painted,
+    ok: probe.errors.length === 0 && probe.canvasCount > 0 && (probe.painted || blankIsFine),
+    errors: probe.errors,
+    canvasCount: probe.canvasCount,
+    painted: probe.painted,
     intentionallyBlank: blankIsFine || undefined,
+    ...(attempt > 1 ? { attempts: attempt } : {}),
   })
 }
 
