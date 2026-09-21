@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Transform Events Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #F0F0F0;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <script>
+    var stage = new Konva.Stage({
+      container: 'container',
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    var rect = new Konva.Rect({
+      x: 80, y: 90, width: 140, height: 100,
+      fill: '#7a5fa3', stroke: 'black', strokeWidth: 2, draggable: true
+    });
+    layer.add(rect);
+    layer.add(new Konva.Transformer({ nodes: [rect] }));
+
+    var log = new Konva.Text({ x: 280, y: 20, fontSize: 13, fill: '#333', lineHeight: 1.5, text: '' });
+    layer.add(log);
+
+    var lines = [], transformCount = 0;
+    function push(msg) {
+      lines.push(msg);
+      if (lines.length > 8) lines.shift();
+      log.text(lines.join('\n'));
+    }
+
+    // 注意：事件绑在被变换的图形上，不是绑在 Transformer 上
+    rect.on('transformstart', function () {
+      transformCount = 0;
+      push('transformstart');
+    });
+    rect.on('transform', function () {
+      transformCount++;
+      // transform 高频触发，这里只累计次数，不做重活
+      log.text(lines.concat(['transform ×' + transformCount]).join('\n'));
+    });
+    rect.on('transformend', function () {
+      push('transform ×' + transformCount);
+      push('transformend  最终 ' +
+        Math.round(rect.width() * rect.scaleX()) + ' × ' +
+        Math.round(rect.height() * rect.scaleY()));
+    });
+
+    push('拖动锚点，观察事件顺序');
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Resize Snaps Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #F0F0F0;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <script>
+    var stage = new Konva.Stage({
+      container: 'container',
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    var GRID = 40;
+
+    // 画出网格，让吸附效果看得见
+    for (var x = 0; x < 600; x += GRID) {
+      layer.add(new Konva.Line({ points: [x, 0, x, 400], stroke: '#ddd', strokeWidth: 1, listening: false }));
+    }
+    for (var y = 0; y < 400; y += GRID) {
+      layer.add(new Konva.Line({ points: [0, y, 600, y], stroke: '#ddd', strokeWidth: 1, listening: false }));
+    }
+
+    var rect = new Konva.Rect({
+      x: 80, y: 80, width: 160, height: 120,
+      fill: 'rgba(64,120,192,0.6)', stroke: '#4078c0', strokeWidth: 2, draggable: true
+    });
+    layer.add(rect);
+
+    var tr = new Konva.Transformer({
+      nodes: [rect],
+      // keepRatio 必须关掉。它在 anchorDragBoundFunc 之后执行，会为了维持宽高比
+      // 再次调整锚点位置，把吸附结果覆盖掉——回调返回了 280，最终却落在 284.7。
+      keepRatio: false,
+      // 回调收到的是锚点的绝对坐标，直接取整到网格即可，无需再做坐标换算
+      anchorDragBoundFunc: function (oldAbsPos, newAbsPos) {
+        return {
+          x: Math.round(newAbsPos.x / GRID) * GRID,
+          y: Math.round(newAbsPos.y / GRID) * GRID
+        };
+      }
+    });
+    layer.add(tr);
+
+    layer.add(new Konva.Text({
+      x: 20, y: 20, fontSize: 14, fill: '#333',
+      text: '拖动任一锚点：它只会停在 40 像素网格的交点上。\n（keepRatio 已关闭，否则等比约束会覆盖吸附结果）'
+    }));
+  </script>
+
+</body>
+</html>

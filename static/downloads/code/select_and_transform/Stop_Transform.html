@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Stop Transform Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #F0F0F0;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <script>
+    var stage = new Konva.Stage({
+      container: 'container',
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    var rect = new Konva.Rect({
+      x: 80, y: 100, width: 140, height: 100,
+      fill: '#d08a3e', stroke: 'black', strokeWidth: 2, draggable: true
+    });
+    layer.add(rect);
+
+    var tr = new Konva.Transformer({ nodes: [rect] });
+    layer.add(tr);
+
+    var MAX_AREA = 40000;
+    // 变量名不要用 status。顶层的 var status 会覆盖 window.status——
+    // 那是浏览器的遗留属性，赋值会被强制转成字符串，
+    // 之后 layer.add(status) 拿到的是字符串，报 "getParent is not a function"。
+    // name、top、length、origin 等同理。
+    var statusText = new Konva.Text({ x: 20, y: 20, fontSize: 14, fill: '#333', text: '' });
+    layer.add(statusText);
+
+    function area() {
+      return (rect.width() * rect.scaleX()) * (rect.height() * rect.scaleY());
+    }
+
+    rect.on('transform', function () {
+      statusText.text('面积 ' + Math.round(area()) + ' / 上限 ' + MAX_AREA);
+      if (area() > MAX_AREA) {
+        // 不是「拦住不让变大」，而是直接结束这次拖拽交互
+        tr.stopTransform();
+        statusText.text('面积超过 ' + MAX_AREA + '，已中止本次变换。松手后可重新拖动。');
+      }
+    });
+
+    statusText.text('把矩形拖大，面积超过 ' + MAX_AREA + ' 时会自动中止变换。');
+  </script>
+
+</body>
+</html>

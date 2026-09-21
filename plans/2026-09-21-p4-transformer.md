@@ -595,7 +595,11 @@ const rect2 = new Konva.Rect({
 第三小节用**与其他方案的取舍**：说明什么时候该选哪一种，以及为什么不建议两个都开
 （都开之后描边既不缩放、尺寸又被折算，视觉上描边相对图形会越来越细）。
 
-- [ ] **Step 1b: 补回基础页的前向链接**
+- [ ] **Step 1b: 补回前向链接（两处）**
+
+Task 1 与 Task 3 各有一处指向本任务页面的链接被改成了文字描述，现在补回：
+`basic-demo.md` 指向 `resize-text` 与 `ignore-stroke`，
+`transform-events.md` 指向 `resize-text`。
 
 `resize-text` 与 `ignore-stroke` 现在存在了，把 `basic-demo.md` 里「本章后面有专门的
 两页讲这件事」改回真实链接：

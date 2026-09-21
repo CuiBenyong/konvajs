@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Force Update Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #F0F0F0;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <script>
+    var stage = new Konva.Stage({
+      container: 'container',
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    var group = new Konva.Group({ x: 60, y: 80, draggable: true });
+    group.add(new Konva.Rect({ x: 0, y: 0, width: 80, height: 60, fill: '#4078c0' }));
+    layer.add(group);
+
+    var tr = new Konva.Transformer({ nodes: [group] });
+    layer.add(tr);
+
+    var hint = new Konva.Text({ x: 20, y: 20, fontSize: 14, fill: '#333', lineHeight: 1.5, text: '' });
+    layer.add(hint);
+
+    var added = 0;
+    function addChild(useForceUpdate) {
+      added++;
+      group.add(new Konva.Rect({
+        x: added * 50, y: added * 30, width: 60, height: 40,
+        fill: added % 2 ? '#c04040' : '#5aa469'
+      }));
+      if (useForceUpdate) tr.forceUpdate();
+      hint.text(
+        '已向分组内添加 ' + added + ' 个子图形' +
+        (useForceUpdate ? '（调用了 forceUpdate）' : '（未调用 forceUpdate）') +
+        '\n控制柄包围盒宽度：' + Math.round(tr.width())
+      );
+    }
+
+    // 先不调用 forceUpdate：控制柄不会包住新子图形
+    setTimeout(function () { addChild(false); }, 800);
+    // 再调用一次：控制柄立刻重算
+    setTimeout(function () { addChild(true); }, 2000);
+
+    hint.text('两秒内会向分组添加子图形，观察控制柄何时才跟上。');
+  </script>
+
+</body>
+</html>
