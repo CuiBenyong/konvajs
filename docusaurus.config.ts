@@ -67,6 +67,42 @@ const config: Config = {
     ],
   ],
 
+  headTags: [
+    /**
+     * 提前建立到广告服务器的连接。
+     *
+     * 广告脚本是异步加载的，先把 DNS 解析和 TLS 握手做掉可以让广告更早出现，
+     * 而广告出现得越早，进入可见区域的概率越高。
+     */
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'preconnect',
+        href: 'https://pagead2.googlesyndication.com',
+        crossorigin: 'anonymous',
+      },
+    },
+    {
+      tagName: 'link',
+      attributes: { rel: 'dns-prefetch', href: 'https://googleads.g.doubleclick.net' },
+    },
+  ],
+
+  scripts: [
+    {
+      src: 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9580076271637088',
+      /**
+       * async 必须显式声明。
+       *
+       * Docusaurus 会把这里的属性原样透传到 script 标签上，不会自动补 async
+       * （见 @docusaurus/core 的 createBootstrapPlugin）。漏掉它，这就是 head 里的
+       * 同步阻塞脚本，既拖慢 LCP，也因为内容出现得晚而降低广告可见性评分。
+       */
+      async: true,
+      crossorigin: 'anonymous',
+    },
+  ],
+
   themeConfig: {
     metadata: [
       { name: 'description', content: SITE_DESCRIPTION },

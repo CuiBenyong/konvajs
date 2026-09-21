@@ -44,6 +44,7 @@ const checks = [
   require('./checks/metadata'),
   require('./checks/redirects'),
   require('./checks/robots'),
+  require('./checks/ads'),
 ];
 
 let failed = 0;
