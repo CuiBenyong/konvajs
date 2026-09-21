@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Line Demo</title>
+  <style>
+    body { margin: 0; padding: 0; overflow: hidden; background-color: #F0F0F0;
+           font: 13px/1.7 system-ui, -apple-system, sans-serif; }
+    #note { padding: 4px 12px; color: #777; }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <div id="note">同一组 points，closed 与 tension 的四种组合。</div>
+  <script>
+    var stage = new Konva.Stage({ container: 'container', width: 340, height: 260 });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    // 四条线共用同一组顶点
+    var pts = [0, 40, 40, 0, 80, 50, 120, 10];
+
+    var variants = [
+      { x: 20,  y: 30,  closed: false, tension: 0,   color: '#4078c0', label: 'closed:false  tension:0' },
+      { x: 180, y: 30,  closed: true,  tension: 0,   color: '#c06040', label: 'closed:true   tension:0' },
+      { x: 20,  y: 140, closed: false, tension: 0.5, color: '#3aa657', label: 'closed:false  tension:0.5' },
+      { x: 180, y: 140, closed: true,  tension: 0.5, color: '#9b59b6', label: 'closed:true   tension:0.5' },
+    ];
+
+    variants.forEach(function (v) {
+      layer.add(new Konva.Line({
+        x: v.x,
+        y: v.y,
+        points: pts,
+        stroke: v.color,
+        strokeWidth: 3,
+        closed: v.closed,
+        tension: v.tension,
+        // 闭合的填充一下，好看出 closed 的效果
+        fill: v.closed ? v.color + '33' : undefined,
+        lineCap: 'round',
+        lineJoin: 'round',
+      }));
+      layer.add(new Konva.Text({
+        x: v.x, y: v.y + 60, text: v.label, fontSize: 11, fill: '#555',
+        fontFamily: 'monospace',
+      }));
+    });
+
+    layer.draw();
+  </script>
+</body>
+</html>
