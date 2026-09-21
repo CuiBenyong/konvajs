@@ -1,0 +1,96 @@
+# Konva.js 中文文档
+# https://front-end-js.top
+
+User-agent: *
+Allow: /
+
+# ---------------------------------------------------------------------------
+# AI 检索与问答类爬虫
+#
+# 上面的通用规则已经允许了所有爬虫，下面是显式表态：本站希望被 AI 搜索与
+# 问答系统抓取并引用。取舍是明确的——放行意味着内容可能被用于模型训练，
+# 同时也意味着内容有机会出现在 AI 生成的回答里并被标注来源。对一个希望被
+# 更多中文开发者找到的翻译文档站，后者的价值更大。
+#
+# Google-Extended 是唯一不冗余的一条：它控制 Gemini 与 AI Overviews 的
+# 内容使用，与 Googlebot 的网页索引是两套独立开关，不放行就不进引用池。
+#
+# 若哪天想改变这个立场，把对应的 Allow 改成 Disallow 即可。
+# ---------------------------------------------------------------------------
+
+# OpenAI：训练 / 搜索 / 用户即时抓取
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+# Anthropic
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+# Perplexity
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+# Google：Gemini 与 AI Overviews 的引用池开关
+User-agent: Google-Extended
+Allow: /
+
+# Apple Intelligence
+User-agent: Applebot-Extended
+Allow: /
+
+# 字节：豆包与头条搜索
+User-agent: Bytespider
+Allow: /
+
+# 其他
+User-agent: Amazonbot
+Allow: /
+
+User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: YouBot
+Allow: /
+
+User-agent: Diffbot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+# 国内搜索引擎
+User-agent: Baiduspider
+Allow: /
+
+User-agent: Sogou web spider
+Allow: /
+
+User-agent: 360Spider
+Allow: /
+
+Sitemap: https://front-end-js.top/sitemap.xml
+
+# 面向大模型的站点导航（llmstxt.org 约定）
+# https://front-end-js.top/llms.txt
+# https://front-end-js.top/llms-full.txt

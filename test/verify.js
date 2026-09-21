@@ -43,6 +43,7 @@ const checks = [
   require('./checks/deps'),
   require('./checks/metadata'),
   require('./checks/redirects'),
+  require('./checks/robots'),
 ];
 
 let failed = 0;
