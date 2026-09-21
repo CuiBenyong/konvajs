@@ -86,7 +86,8 @@ module.exports = {
     // Netlify 域名别名，同一份构建产物在主域下也能命中真实文件，
     // 不强制的话 Netlify 会直接返回文件而不跳转。
     if (SITE_URL && LEGACY_URL) {
-      const wildcard = rules.find((r) => r.from === `${LEGACY_URL}/*`);
+      const wildcardIdx = rules.findIndex((r) => r.from === `${LEGACY_URL}/*`);
+      const wildcard = wildcardIdx === -1 ? null : rules[wildcardIdx];
       if (!wildcard) {
         problems.push(`缺少主域兜底规则 ${LEGACY_URL}/*，主域流量不会转到子域`);
       } else {
@@ -97,6 +98,37 @@ module.exports = {
           problems.push(`主域兜底规则应使用 301!（强制），实际是 ${wildcard.code}`);
         }
       }
+
+      // 主域的 ads.txt 必须直接返回而不是被兜底规则跳走。
+      // AdSense 按根域查 ads.txt，这条链路断了的后果是广告被判为未授权库存。
+      const adsIdx = rules.findIndex((r) => r.from === `${LEGACY_URL}/ads.txt`);
+      const ads = adsIdx === -1 ? null : rules[adsIdx];
+      if (!ads) {
+        problems.push(
+          `缺少主域 ads.txt 例外规则 ${LEGACY_URL}/ads.txt，` +
+            'AdSense 按根域查 ads.txt，会被兜底规则跳到子域'
+        );
+      } else {
+        if (ads.code !== '200') {
+          problems.push(`主域 ads.txt 应为 200 重写而不是跳转，实际是 ${ads.code}`);
+        }
+        if (ads.to !== '/ads.txt') {
+          problems.push(`主域 ads.txt 的目标应为 /ads.txt，实际是 ${ads.to}`);
+        }
+        // 顺序是硬要求：Netlify 自上而下首个命中生效。排到兜底之后这条
+        // 永远不会被命中，而且失效时没有任何报错——只能靠检查守住。
+        if (wildcardIdx !== -1 && adsIdx > wildcardIdx) {
+          problems.push(
+            `主域 ads.txt 例外排在兜底规则之后（第 ${adsIdx + 1} 条 vs 第 ${wildcardIdx + 1} 条），` +
+              '永远不会被命中'
+          );
+        }
+      }
+    }
+
+    // ads.txt 必须真的在构建产物里，否则上面那条重写会 404
+    if (!ctx.exists('ads.txt')) {
+      problems.push('构建产物中不存在 ads.txt');
     }
 
     return problems;

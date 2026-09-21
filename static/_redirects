@@ -117,6 +117,21 @@ https://konvajs.netlify.app/*  https://konva-doc-cn.front-end-js.top/:splat  301
 /help                                              https://konva-doc-cn.front-end-js.top/docs/support  301!
 /start                                             https://konva-doc-cn.front-end-js.top/docs/intro  301!
 
+# --- 主域例外：ads.txt 必须直接返回，不能跳转 ---
+#
+# AdSense 按**根域**查 ads.txt。站点虽在子域，抓取器仍会取
+# front-end-js.top/ads.txt。被下面的兜底规则 301 到子域后，Google 虽然会
+# 跟随跳转，但这在广告授权链路上多了一个可能出错的环节——而 ads.txt 出问题
+# 的后果是广告被判为未授权库存，收入直接受影响。让主域直接返回，少一个变量。
+#
+# 200 是重写（rewrite）不是跳转：URL 保持 front-end-js.top/ads.txt，
+# 内容取自本站构建产物里的 /ads.txt。
+#
+# 顺序是硬要求：这条必须排在下面的兜底规则之前。Netlify 的规则自上而下
+# 首个命中生效，排到兜底之后就永远不会被命中，而且这种失效没有任何报错。
+# test/checks/redirects.js 会校验这个先后关系。
+https://front-end-js.top/ads.txt  /ads.txt  200
+
 # --- 主域兜底 ---
 #
 # 必须放在页面级规则之后：上面的规则会先把主域上的旧 URL 直接送到子域的
