@@ -42,7 +42,7 @@ sidebar_position: 12
     var layer = new Konva.Layer();
 
     var textpath = new Konva.TextPath({
-      x: 0,
+      x: 10,
       y: 50,
       fill: '#333',
       fontSize: 16,
