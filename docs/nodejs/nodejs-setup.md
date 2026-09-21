@@ -34,9 +34,13 @@ npm install konva skia-canvas
 这是最容易踩的一步。后端入口**只装环境适配，不带图形类**：
 
 ```js
-import 'konva';                              // ① 带来 Rect / Circle / Text / Filters
-import Konva from 'konva/canvas-backend';    // ② 装上 Node 渲染后端
+import Konva from 'konva';      // ① 带来 Rect / Circle / Text / Filters
+import 'konva/canvas-backend';  // ② 装上 Node 渲染后端
 ```
+
+这是 Konva 官方 CHANGELOG 在 10.0.0 的迁移说明里给出的写法。
+反过来写也一样能跑（实测两种顺序都正常）——两个模块操作的是同一个单例对象，
+从哪个模块拿 `Konva` 引用都行。
 
 少了第①行，你能拿到 `Konva.Stage`，但 `Konva.Rect` 是 `undefined`，
 报错是 `Konva.Rect is not a constructor`——看起来像装错了包，
@@ -56,8 +60,8 @@ import Konva from 'konva/canvas-backend';    // ② 装上 Node 渲染后端
 服务端没有 DOM，所以 `Stage` **不传 `container`**：
 
 ```js
-import 'konva';
-import Konva from 'konva/canvas-backend';
+import Konva from 'konva';
+import 'konva/canvas-backend';
 import fs from 'node:fs';
 
 const stage = new Konva.Stage({ width: 400, height: 200 });
@@ -102,8 +106,9 @@ layer.add(new Konva.Image({ image: img, x: 20, y: 20 }));
 少了 `import 'konva'`。后端入口 `konva/canvas-backend` 只负责告诉 Konva
 "用 node-canvas 来创建画布和图片元素"，它导出的核心对象上没有任何图形类。
 
-两行都要写，且**顺序不重要**——它们操作的是同一个单例对象。
-但习惯上先写 `import 'konva'`，因为它是主体。
+两行都要写。**顺序不重要，两种写法实测都能跑**——它们操作的是同一个单例对象，
+后导入的模块往同一个对象上补东西。建议照官方 CHANGELOG 的形式写
+（`import Konva from 'konva'` 在前），这样和你在别处看到的示例一致。
 
 ### 为什么报 Konva.js unsupported environment？
 
