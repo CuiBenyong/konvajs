@@ -4,6 +4,12 @@ import type * as Preset from '@docusaurus/preset-classic'
 import { SITE_URL, SITE_DESCRIPTION } from './siteMeta'
 import structuredDataPlugin from './plugins/structuredData'
 import llmsTxtPlugin from './plugins/llmsTxt'
+import {
+  GA4_MEASUREMENT_ID,
+  GSC_VERIFICATION_TOKEN,
+  BAIDU_VERIFICATION_TOKEN,
+  isConfigured,
+} from './src/config/analytics'
 
 // 这段代码运行在 Node.js 环境，不要在这里使用浏览器 API
 
@@ -83,6 +89,13 @@ const config: Config = {
         theme: {
           customCss: './src/css/custom.css',
         },
+        /**
+         * 仅在填入真实 ID 时启用。传入占位值会让 Docusaurus 直接报错，
+         * 那样凭据没到位就没法构建、没法上线，本末倒置。
+         */
+        gtag: isConfigured(GA4_MEASUREMENT_ID)
+          ? { trackingID: GA4_MEASUREMENT_ID, anonymizeIP: true }
+          : undefined,
         sitemap: {
           lastmod: 'date',
           // changefreq 与 priority 自 2024 年起被 Google 忽略，
@@ -121,6 +134,24 @@ const config: Config = {
       attributes: { type: 'application/ld+json' },
       innerHTML: JSON.stringify(siteStructuredData),
     },
+    // 站长验证 meta。用展开语法而非条件渲染出空标签：
+    // 未配置时这里不产生任何标签，避免页面上留下 content="" 的空验证标记。
+    ...(isConfigured(GSC_VERIFICATION_TOKEN)
+      ? [
+          {
+            tagName: 'meta',
+            attributes: { name: 'google-site-verification', content: GSC_VERIFICATION_TOKEN },
+          },
+        ]
+      : []),
+    ...(isConfigured(BAIDU_VERIFICATION_TOKEN)
+      ? [
+          {
+            tagName: 'meta',
+            attributes: { name: 'baidu-site-verification', content: BAIDU_VERIFICATION_TOKEN },
+          },
+        ]
+      : []),
   ],
 
   scripts: [

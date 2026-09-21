@@ -49,6 +49,7 @@ const checks = [
   require('./checks/seo'),
   require('./checks/jsonld'),
   require('./checks/llms'),
+  require('./checks/analytics'),
 ];
 
 let failed = 0;
