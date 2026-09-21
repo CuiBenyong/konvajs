@@ -19,6 +19,7 @@ sidebar_position: 2
 
 ## 交互与视觉
 
+- [选择与变换](/docs/select-and-transform/basic-demo)：Transformer 控制柄、缩放限制、旋转吸附与变换事件
 - [拖拽](/docs/drag-and-drop/drag-a-line)：拖拽图形、分组与舞台，以及拖拽边界
 - [裁剪](/docs/clipping/clipping-function)：矩形裁剪区域与自定义裁剪函数
 - [滤镜](/docs/filters/blur)：模糊、亮度、灰度、反色等内置滤镜与滤镜叠加

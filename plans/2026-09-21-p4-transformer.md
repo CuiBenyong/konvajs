@@ -302,6 +302,11 @@ Konva 10.4.0 起做了优化——未变化的图形边界会被复用、选择�
 避免中间过程触发大量无意义的重算。
 ```
 
+- [ ] **Step 3b: 不要在本页链接尚未创建的页面**
+
+`onBrokenLinks` 为 `throw`，链接到 Task 4 才创建的 `resize-text`、`ignore-stroke`
+会让构建直接失败。本任务里用文字描述指向「本章后面」，Task 4 建好那两页之后再补链接。
+
 - [ ] **Step 4: 加导航入口**
 
 `docusaurus.config.ts` 的 `navbar.items` 在「图形」之后插入：
@@ -589,6 +594,18 @@ const rect2 = new Konva.Rect({
 ③ 做法一里的 `Math.max(5, ...)` 不是装饰——快速拖过头时宽度会变成极小值甚至负数。
 第三小节用**与其他方案的取舍**：说明什么时候该选哪一种，以及为什么不建议两个都开
 （都开之后描边既不缩放、尺寸又被折算，视觉上描边相对图形会越来越细）。
+
+- [ ] **Step 1b: 补回基础页的前向链接**
+
+`resize-text` 与 `ignore-stroke` 现在存在了，把 `basic-demo.md` 里「本章后面有专门的
+两页讲这件事」改回真实链接：
+
+```markdown
+对大多数图形没有区别，但对文字和带描边的图形会出问题——字形会被拉伸变形，
+描边会跟着变粗。这两种情况的处理办法见
+[缩放文字](/docs/select-and-transform/resize-text)与
+[描边不随缩放变粗](/docs/select-and-transform/ignore-stroke)。
+```
 
 - [ ] **Step 2: 验证**
 

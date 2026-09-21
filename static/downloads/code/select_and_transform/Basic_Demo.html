@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Transformer Basic Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #F0F0F0;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <script>
+    var stage = new Konva.Stage({
+      container: 'container',
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    layer.add(new Konva.Rect({
+      x: 60, y: 60, width: 100, height: 90,
+      fill: 'red', name: 'rect', draggable: true
+    }));
+    layer.add(new Konva.Rect({
+      x: 250, y: 100, width: 150, height: 90,
+      fill: 'green', name: 'rect', draggable: true
+    }));
+
+    var tr = new Konva.Transformer();
+    layer.add(tr);
+
+    // 框选用的半透明矩形。listening: false 让它不拦截指针事件，
+    // 否则松手时 e.target 会是它自己而不是舞台。
+    var selectionRectangle = new Konva.Rect({
+      fill: 'rgba(0,0,255,0.5)',
+      visible: false,
+      listening: false
+    });
+    layer.add(selectionRectangle);
+
+    var x1, y1, x2, y2, selecting = false;
+
+    stage.on('mousedown touchstart', function (e) {
+      // 点在图形上时不启动框选，交给下面的选中逻辑
+      if (e.target !== stage) return;
+      e.evt.preventDefault();
+      x1 = x2 = stage.getPointerPosition().x;
+      y1 = y2 = stage.getPointerPosition().y;
+      selecting = true;
+      selectionRectangle.width(0);
+      selectionRectangle.height(0);
+    });
+
+    stage.on('mousemove touchmove', function (e) {
+      if (!selecting) return;
+      e.evt.preventDefault();
+      x2 = stage.getPointerPosition().x;
+      y2 = stage.getPointerPosition().y;
+      selectionRectangle.setAttrs({
+        visible: true,
+        x: Math.min(x1, x2),
+        y: Math.min(y1, y2),
+        width: Math.abs(x2 - x1),
+        height: Math.abs(y2 - y1)
+      });
+    });
+
+    stage.on('mouseup touchend', function (e) {
+      selecting = false;
+      if (!selectionRectangle.visible()) return;
+      e.evt.preventDefault();
+
+      var box = selectionRectangle.getClientRect();
+      var selected = stage.find('.rect').filter(function (shape) {
+        return Konva.Util.haveIntersection(box, shape.getClientRect());
+      });
+      tr.nodes(selected);
+
+      // 留到下一轮事件循环再隐藏，好让紧随其后的 click 能判断出
+      // 「这次点击是框选的收尾」，从而不把刚选中的图形清空
+      setTimeout(function () {
+        selectionRectangle.visible(false);
+      });
+    });
+
+    stage.on('click tap', function (e) {
+      // 框选刚结束时不要把这次点击当成选中操作
+      if (selectionRectangle.visible()) return;
+
+      if (e.target === stage) {
+        tr.nodes([]);
+        return;
+      }
+      if (!e.target.hasName('rect')) return;
+
+      var metaPressed = e.evt.shiftKey || e.evt.ctrlKey || e.evt.metaKey;
+      var isSelected = tr.nodes().indexOf(e.target) >= 0;
+
+      if (!metaPressed && !isSelected) {
+        tr.nodes([e.target]);
+      } else if (metaPressed && isSelected) {
+        var nodes = tr.nodes().slice();
+        nodes.splice(nodes.indexOf(e.target), 1);
+        tr.nodes(nodes);
+      } else if (metaPressed && !isSelected) {
+        tr.nodes(tr.nodes().concat([e.target]));
+      }
+    });
+
+    // 首屏就选中一个图形，让读者立刻看到控制柄
+    tr.nodes([stage.findOne('.rect')]);
+  </script>
+
+</body>
+</html>

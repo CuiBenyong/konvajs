@@ -190,6 +190,7 @@ const config: Config = {
         { to: '/docs/intro', position: 'left', label: '开始' },
         { to: '/docs/overview', position: 'left', label: '教程' },
         { to: '/docs/shapes/rect', position: 'left', label: '图形' },
+        { to: '/docs/select-and-transform/basic-demo', position: 'left', label: '变换' },
         { to: '/docs/performance/all-performance-tips', position: 'left', label: '性能' },
         { to: '/docs/support', position: 'right', label: '帮助' },
         { href: 'https://github.com/CuiBenyong/konvajs', label: 'GitHub', position: 'right' },

@@ -1,5 +1,5 @@
 {
-  "total": 117,
+  "total": 118,
   "results": [
     {
       "file": "downloads/code/animations/Moving.html",
@@ -550,6 +550,13 @@
     },
     {
       "file": "downloads/code/sandbox/Zoom_Layer_On_Hover.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/select_and_transform/Basic_Demo.html",
       "ok": true,
       "errors": [],
       "canvasCount": 1,
