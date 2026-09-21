@@ -48,6 +48,7 @@ const checks = [
   require('./checks/ad-placement'),
   require('./checks/seo'),
   require('./checks/jsonld'),
+  require('./checks/llms'),
 ];
 
 let failed = 0;

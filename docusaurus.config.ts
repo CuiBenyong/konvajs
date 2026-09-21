@@ -3,6 +3,7 @@ import type { Config } from '@docusaurus/types'
 import type * as Preset from '@docusaurus/preset-classic'
 import { SITE_URL, SITE_DESCRIPTION } from './siteMeta'
 import structuredDataPlugin from './plugins/structuredData'
+import llmsTxtPlugin from './plugins/llmsTxt'
 
 // 这段代码运行在 Node.js 环境，不要在这里使用浏览器 API
 
@@ -94,7 +95,7 @@ const config: Config = {
     ],
   ],
 
-  plugins: [structuredDataPlugin],
+  plugins: [structuredDataPlugin, llmsTxtPlugin],
 
   headTags: [
     /**
