@@ -15,9 +15,9 @@ sidebar_position: 5
 
 本站生成了两份给机器读的文件：
 
-- **[`/llms.txt`](https://front-end-js.top/llms.txt)**——全站目录与每页摘要，
+- **[`/llms.txt`](https://konva-doc-cn.front-end-js.top/llms.txt)**——全站目录与每页摘要，
   体积小，适合放进 system prompt 或作为检索索引。
-- **[`/llms-full.txt`](https://front-end-js.top/llms-full.txt)**——正文全文，
+- **[`/llms-full.txt`](https://konva-doc-cn.front-end-js.top/llms-full.txt)**——正文全文，
   适合作为 RAG 语料，或者在处理某个具体问题时整段贴进对话。
 
 用法上最有效的是**把相关页的内容连同你的问题一起给模型**，

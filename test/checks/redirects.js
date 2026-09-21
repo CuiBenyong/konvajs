@@ -1,4 +1,5 @@
 'use strict';
+const { siteUrl, legacySiteUrl } = require('../lib/site-meta');
 
 // 规格 §7.2 的映射表共 97 行，其中 `/` → `/` 是恒等映射，写进 _redirects
 // 会造成重定向循环，因此不写入。页面级规则实际为 96 条。
@@ -8,6 +9,10 @@ module.exports = {
   name: '301 重定向',
   run(ctx) {
     const problems = [];
+    const SITE_URL = siteUrl(ctx);
+    const LEGACY_URL = legacySiteUrl(ctx);
+    if (!SITE_URL) problems.push('无法从 siteMeta.ts 读出 SITE_URL');
+    if (!LEGACY_URL) problems.push('无法从 siteMeta.ts 读出 LEGACY_SITE_URL');
 
     if (!ctx.exists('_redirects')) {
       problems.push('build/_redirects 不存在，Netlify 不会应用任何重定向');
@@ -55,12 +60,42 @@ module.exports = {
       if (prev) problems.push(`源地址重复：${rule.from}`);
       else seenFrom.set(rule.from, rule.to);
 
+      // 迁移后页面级规则的目标一律是子域的绝对地址。写成相对路径会让主域上的
+      // 旧 URL 先跳到「主域的新路径」再跳一次，多一跳，中间地址还会被短暂收录。
+      if (!SITE_URL) {
+        // SITE_URL 读不出来时已在上面报过，这里不再逐条重复
+      } else if (!rule.to.startsWith(`${SITE_URL}/`)) {
+        problems.push(`${rule.from} 的目标不是子域绝对地址：${rule.to}`);
+        continue;
+      }
+
       // 目标必须真实存在于构建产物中。301 指向 404 比不做重定向更糟——
       // 搜索引擎会直接丢弃该 URL 累积的权重。
-      const target = rule.to.replace(/^\//, '').replace(/\/$/, '');
+      const target = rule.to
+        .replace(SITE_URL, '')
+        .replace(/^\//, '')
+        .replace(/\/$/, '');
       const candidate = target === '' ? 'index.html' : `${target}/index.html`;
       if (!ctx.exists(candidate)) {
         problems.push(`${rule.from} 指向 ${rule.to}，但构建产物中不存在 ${candidate}`);
+      }
+    }
+
+    // 主域兜底：主域上还有已收录的 URL，必须全量 301 到子域，否则收录会
+    // 停在主域上，与子域形成重复内容。感叹号不能少——主域目前仍是本站的
+    // Netlify 域名别名，同一份构建产物在主域下也能命中真实文件，
+    // 不强制的话 Netlify 会直接返回文件而不跳转。
+    if (SITE_URL && LEGACY_URL) {
+      const wildcard = rules.find((r) => r.from === `${LEGACY_URL}/*`);
+      if (!wildcard) {
+        problems.push(`缺少主域兜底规则 ${LEGACY_URL}/*，主域流量不会转到子域`);
+      } else {
+        if (wildcard.to !== `${SITE_URL}/:splat`) {
+          problems.push(`主域兜底规则的目标应为 ${SITE_URL}/:splat，实际是 ${wildcard.to}`);
+        }
+        if (wildcard.code !== '301!') {
+          problems.push(`主域兜底规则应使用 301!（强制），实际是 ${wildcard.code}`);
+        }
       }
     }
 

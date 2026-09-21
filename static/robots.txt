@@ -1,5 +1,8 @@
 # Konva.js 中文文档
-# https://front-end-js.top
+# https://konva-doc-cn.front-end-js.top
+#
+# 本站 2026-09-21 从主域 front-end-js.top 迁到本子域。主域上的全部 URL
+# 已 301 到这里，收录应归属本子域。
 
 User-agent: *
 Allow: /
@@ -89,8 +92,8 @@ Allow: /
 User-agent: 360Spider
 Allow: /
 
-Sitemap: https://front-end-js.top/sitemap.xml
+Sitemap: https://konva-doc-cn.front-end-js.top/sitemap.xml
 
 # 面向大模型的站点导航（llmstxt.org 约定）
-# https://front-end-js.top/llms.txt
-# https://front-end-js.top/llms-full.txt
+# https://konva-doc-cn.front-end-js.top/llms.txt
+# https://konva-doc-cn.front-end-js.top/llms-full.txt

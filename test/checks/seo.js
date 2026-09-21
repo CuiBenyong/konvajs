@@ -1,10 +1,6 @@
 'use strict';
 
-/** 从 siteMeta.ts 取站点地址，保证与实际配置同源，不在此处重复硬编码。 */
-function siteUrl(ctx) {
-  const m = /export const SITE_URL = '([^']*)'/.exec(ctx.readRoot('siteMeta.ts'));
-  return m ? m[1] : '';
-}
+const { siteUrl } = require('../lib/site-meta');
 
 module.exports = {
   name: 'canonical 与 sitemap',

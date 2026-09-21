@@ -1,6 +1,6 @@
 # Konva.js 中文文档
 
-[Konva](https://konvajs.org/) 官方文档的中文翻译。线上地址：https://front-end-js.top
+[Konva](https://konvajs.org/) 官方文档的中文翻译。线上地址：https://konva-doc-cn.front-end-js.top
 
 ## 开发
 
@@ -91,3 +91,59 @@ specs/ plans/      # 设计文档与实施计划（在内容目录之外，不�
 ## LICENSE
 
 MIT。本站为 Konva 官方文档的中文翻译，内容版权归原作者所有。
+
+## 域名迁移交接清单（2026-09-21）
+
+站点已从主域 `front-end-js.top` 迁到子域 `konva-doc-cn.front-end-js.top`，
+主域保留一段时间后改作导航站。**代码侧已全部改完**，下面是只能在各平台后台
+完成的部分，以及主域将来切走时必须一并带走的东西。
+
+### 一、现在要做的（否则收录不会转移）
+
+1. **Netlify**：把 `konva-doc-cn.front-end-js.top` 设为本站的 **primary domain**，
+   `front-end-js.top` 保留为 **domain alias**。
+   顺序不能反——主域必须仍然指向本站，`_redirects` 里的主域兜底规则才会生效。
+2. **Netlify**：确认发布目录是 `build`（不是 dumi 时代的 `dist`）。
+3. **Search Console**：为 `konva-doc-cn.front-end-js.top` 新建资源并验证，
+   token 填进 `src/config/analytics.ts`（**是子域的 token，不是主域的**）。
+4. **Search Console**：在主域资源里用「地址变更」（Change of Address）工具
+   指向子域资源。这一步会显著加快权重转移。
+5. **提交子域 sitemap**：`https://konva-doc-cn.front-end-js.top/sitemap.xml`
+6. **百度站长平台**：同样需要为子域单独验证并提交。百度没有等价的地址变更工具，
+   只能靠 301 自然转移，会比 Google 慢。
+
+### 二、主域将来切给导航站时，必须一并带走
+
+这三件事漏掉任何一件都会造成实质损失。
+
+**① `ads.txt` 必须留在主域。**
+AdSense 按**根域**查 `ads.txt`。站点虽然在子域，爬虫仍会去
+`front-end-js.top/ads.txt` 找授权记录。导航站的 `ads.txt` 里
+**必须包含这一行**，否则本站广告会被判为未授权库存，收入直接受影响：
+
+```
+google.com, pub-9580076271637088, DIRECT, f08c47fec0942fa0
+```
+
+**② 96 条页面级 301 必须由导航站继续提供。**
+这些是 dumi 时代就被收录的 URL（`/guides/...`、`/help`、`/start`），
+目前由本仓库的 `static/_redirects` 承担。主域切走后本站不再收到主域请求，
+这些规则要原样搬到导航站。目标已经写成子域的绝对地址，可以直接复制。
+
+**③ 主域兜底规则要继续存在。**
+
+```
+https://front-end-js.top/*  https://konva-doc-cn.front-end-js.top/:splat  301!
+```
+
+导航站接管主域后，这条要改成「只兜底文档相关路径」，
+不能把导航站自己的页面也跳走。建议改成按前缀兜底：
+
+```
+/docs/*      https://konva-doc-cn.front-end-js.top/docs/:splat  301!
+/downloads/* https://konva-doc-cn.front-end-js.top/downloads/:splat  301!
+/llms.txt    https://konva-doc-cn.front-end-js.top/llms.txt  301!
+```
+
+**Google 官方建议 301 至少保留一年**，实际上只要旧 URL 还有外链和收录，
+就不应该撤。
