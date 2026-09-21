@@ -1,5 +1,5 @@
 {
-  "total": 146,
+  "total": 152,
   "results": [
     {
       "file": "downloads/code/animations/Moving.html",
@@ -30,6 +30,13 @@
       "painted": true
     },
     {
+      "file": "downloads/code/animations/Text_Animations.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
       "file": "downloads/code/clipping/Clipping_Function.html",
       "ok": true,
       "errors": [],
@@ -45,6 +52,13 @@
     },
     {
       "file": "downloads/code/data_and_serialization/Complex_Load.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/data_and_serialization/High_Quality_Export.html",
       "ok": true,
       "errors": [],
       "canvasCount": 1,
@@ -212,7 +226,21 @@
       "painted": true
     },
     {
+      "file": "downloads/code/events/Mobile_Tap_And_Click.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
       "file": "downloads/code/events/Multi_Event.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/events/Pointer_Events.html",
       "ok": true,
       "errors": [],
       "canvasCount": 1,
@@ -409,6 +437,13 @@
     },
     {
       "file": "downloads/code/groups_and_layers/Layering.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/groups_and_layers/Z_Index.html",
       "ok": true,
       "errors": [],
       "canvasCount": 1,
@@ -928,6 +963,13 @@
     },
     {
       "file": "downloads/code/styling/Fill.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/styling/Fill_Stroke_Order.html",
       "ok": true,
       "errors": [],
       "canvasCount": 1,

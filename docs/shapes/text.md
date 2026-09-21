@@ -109,12 +109,28 @@ const text = new Konva.Text({
   y: 20,
   text: '逐字上色',
   fontSize: 40,
-  charRenderFunc: (ctx, charInfo) => {
-    ctx.fillStyle = charInfo.index % 2 === 0 ? '#4078c0' : '#c04040';
-    ctx.fillText(charInfo.char, charInfo.x, charInfo.y);
+  // 回调只接收一个对象参数，不是 (ctx, charInfo)
+  charRenderFunc: ({ char, index, x, y, context }) => {
+    context.fillStyle = index % 2 === 0 ? '#4078c0' : '#c04040';
+    context.fillText(char, x, y);
   },
 });
 ```
+
+回调参数的完整字段：
+
+| 字段 | 含义 |
+|---|---|
+| `char` | 当前字素 |
+| `index` | 全局字素索引，**跨行累加**，不是行内位置 |
+| `x` / `y` | 该字素的绘制坐标 |
+| `lineIndex` | 所在行号，从 0 开始 |
+| `column` | 行内列号 |
+| `isLastInLine` | 是否是该行最后一个字素 |
+| `width` | 该字素的测量宽度 |
+| `context` | Konva 的 `Context` 包装对象，`fillText`、`fillStyle` 等可直接用 |
+
+要按行内位置做效果，用 `column` 而不是 `index`。
 
 ## 字素感知排版
 

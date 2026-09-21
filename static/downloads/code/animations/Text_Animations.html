@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Text Animations Demo</title>
+  <style>
+    body { margin: 0; padding: 0; overflow: hidden; background-color: #F0F0F0;
+           font: 13px/1.6 system-ui, -apple-system, sans-serif; }
+    #hint { padding: 6px 12px; color: #777; }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <div id="hint">上：按字素切分的打字机。下：charRenderFunc 逐字跳动。</div>
+  <script>
+    var stage = new Konva.Stage({ container: 'container', width: 340, height: 180 });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    // === 打字机：必须按字素切分，否则 emoji 会被从中间劈开 ===
+    var full = '你好，Konva 👨‍👩‍👧 世界！';
+    // Intl.Segmenter 按字素切分；不支持时退回 Array.from（至少按码点）
+    var graphemes = typeof Intl !== 'undefined' && Intl.Segmenter
+      ? Array.from(new Intl.Segmenter('zh', { granularity: 'grapheme' }).segment(full),
+                   function (s) { return s.segment; })
+      : Array.from(full);
+
+    var typed = new Konva.Text({
+      x: 20, y: 30, text: '', fontSize: 22, fill: '#24406b',
+    });
+    layer.add(typed);
+    layer.add(new Konva.Text({
+      x: 20, y: 8, text: '打字机（按字素）', fontSize: 11, fill: '#777',
+    }));
+
+    var typeAnim = new Konva.Animation(function (frame) {
+      var n = Math.floor(frame.time / 160) % (graphemes.length + 8);
+      typed.text(graphemes.slice(0, Math.min(n, graphemes.length)).join(''));
+    }, layer);
+    typeAnim.start();
+
+    // === 逐字跳动：charRenderFunc 按字符索引给不同的 y 偏移 ===
+    layer.add(new Konva.Text({
+      x: 20, y: 90, text: '逐字跳动（charRenderFunc）', fontSize: 11, fill: '#777',
+    }));
+
+    var phase = 0;
+    var bouncing = new Konva.Text({
+      x: 20, y: 112, text: 'Konva 动画 Bounce', fontSize: 26, fill: '#c06040',
+      // charRenderFunc 只接收一个对象参数，不是 (ctx, info)
+      charRenderFunc: function (props) {
+        var dy = Math.sin(phase + props.index * 0.6) * 6;
+        props.context.fillText(props.char, props.x, props.y + dy);
+      },
+    });
+    layer.add(bouncing);
+
+    var bounceAnim = new Konva.Animation(function (frame) {
+      phase = frame.time / 200;
+      // charRenderFunc 每帧都会重跑，改 phase 后触发重绘即可
+      layer.batchDraw();
+    }, layer);
+    bounceAnim.start();
+  </script>
+</body>
+</html>

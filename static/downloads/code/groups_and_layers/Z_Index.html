@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva zIndex Demo</title>
+  <style>
+    body { margin: 0; padding: 0; overflow: hidden; background-color: #F0F0F0;
+           font: 13px/1.6 system-ui, -apple-system, sans-serif; }
+    #info { padding: 6px 12px; font-family: ui-monospace, Menlo, monospace;
+            font-size: 12px; color: #333; white-space: pre; }
+    #hint { padding: 4px 12px 0; color: #777; }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <div id="hint">点任意方块调用它的 moveToTop()。注意：在 A 组里置顶，也盖不过 B 组。</div>
+  <div id="info"></div>
+  <script>
+    var stage = new Konva.Stage({ container: 'container', width: 340, height: 170 });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    var groupA = new Konva.Group({ name: 'A' });
+    var groupB = new Konva.Group({ name: 'B' });
+    layer.add(groupA);   // A 先加，在下面
+    layer.add(groupB);
+
+    function box(group, x, y, color, label) {
+      var g = new Konva.Group({ x: x, y: y, name: label });
+      g.add(new Konva.Rect({
+        x: 0, y: 0, width: 90, height: 60,
+        fill: color, stroke: '#333', strokeWidth: 1, cornerRadius: 4,
+      }));
+      g.add(new Konva.Text({
+        x: 0, y: 20, width: 90, align: 'center',
+        text: label, fontSize: 14, fill: '#fff', listening: false,
+      }));
+      group.add(g);
+      g.on('click tap', function () { g.moveToTop(); report(); layer.draw(); });
+      return g;
+    }
+
+    var a1 = box(groupA, 20, 20, '#4078c0', 'A1');
+    var a2 = box(groupA, 70, 50, '#5c9ae0', 'A2');
+    var b1 = box(groupB, 150, 20, '#c06040', 'B1');
+    var b2 = box(groupB, 200, 50, '#e08a60', 'B2');
+
+    function report() {
+      document.getElementById('info').textContent =
+        'A1.zIndex()=' + a1.zIndex() + '  A2.zIndex()=' + a2.zIndex() +
+        '   |   B1.zIndex()=' + b1.zIndex() + '  B2.zIndex()=' + b2.zIndex() +
+        '\nA1.getAbsoluteZIndex()=' + a1.getAbsoluteZIndex() +
+        '  B1.getAbsoluteZIndex()=' + b1.getAbsoluteZIndex() +
+        '\n（zIndex 是父容器内的索引，A 组整体在 B 组之下）';
+    }
+
+    report();
+    layer.draw();
+  </script>
+</body>
+</html>

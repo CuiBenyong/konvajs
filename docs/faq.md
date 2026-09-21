@@ -101,6 +101,7 @@ stage.toDataURL({ pixelRatio: 3 });                        // 用于打印
 
 容易混淆的是 `cache()`：它的 `pixelRatio` 默认是设备像素比，
 和导出**默认值相反**。同名参数、不同默认值，这是两处最容易搞错的地方。
+完整说明见[导出高清图片](/docs/data-and-serialization/high-quality-export)。
 
 ### 中文字体不生效 / 字体切换后布局乱了？
 
