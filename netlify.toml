@@ -1,5 +1,27 @@
+[build]
+  command = "npm run build"
+  publish = "build"
+
 [[headers]]
-  # Define which paths this specific [[headers]] block will cover.
   for = "/*"
-    [headers.values]
+  [headers.values]
+    # 禁止浏览器基于内容嗅探覆盖声明的 Content-Type，挡掉一类 XSS。
+    X-Content-Type-Options = "nosniff"
+    # 跨站跳转时只发送来源域名，不泄露完整路径与查询串。
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    # 允许同源 iframe——正文里的演示页正是以同源 iframe 嵌入的。
+    X-Frame-Options = "SAMEORIGIN"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+[[headers]]
+  # 演示页目录。原 dumi 时代对全站开了 Access-Control-Allow-Origin = "*"，
+  # 那对文档页没有必要，收窄到实际需要被跨源引用的演示资源上。
+  for = "/downloads/*"
+  [headers.values]
     Access-Control-Allow-Origin = "*"
+
+[[headers]]
+  # 带内容哈希的构建产物可以长期强缓存。
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

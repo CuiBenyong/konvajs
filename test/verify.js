@@ -46,6 +46,7 @@ const checks = [
   require('./checks/robots'),
   require('./checks/ads'),
   require('./checks/ad-placement'),
+  require('./checks/seo'),
 ];
 
 let failed = 0;
