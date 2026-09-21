@@ -53,6 +53,7 @@ const checks = [
   require('./checks/jsonld'),
   require('./checks/llms'),
   require('./checks/analytics'),
+  require('./checks/originality'),
 ];
 
 let failed = 0;
