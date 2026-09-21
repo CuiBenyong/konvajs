@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Resize Text Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #F0F0F0;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <script>
+    var stage = new Konva.Stage({
+      container: 'container',
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    var text = new Konva.Text({
+      x: 60, y: 90,
+      text: '拖动左右两侧的锚点，文字会重新换行而不是被拉扁。Konva 中文文档。',
+      fontSize: 20,
+      width: 260,
+      draggable: true
+    });
+    layer.add(text);
+
+    var tr = new Konva.Transformer({
+      nodes: [text],
+      // 只留左右锚点：这里改的是宽度，不是字号
+      enabledAnchors: ['middle-left', 'middle-right']
+    });
+    layer.add(tr);
+
+    // 必须在 transform 而不是 transformend 里复位，
+    // 否则拖动过程中看到的是被拉伸变形的中间态
+    text.on('transform', function () {
+      text.setAttrs({
+        width: text.width() * text.scaleX(),
+        scaleX: 1
+      });
+    });
+
+    layer.add(new Konva.Text({
+      x: 20, y: 20, fontSize: 14, fill: '#333',
+      text: '拖动左右锚点改变宽度，文字重新排版。'
+    }));
+  </script>
+
+</body>
+</html>

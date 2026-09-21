@@ -119,8 +119,9 @@ rect.on('transformend', () => {
 在 Konva 10.4.0 之前会。此前 Transformer 在两次指针移动之间不感知外部对节点的修改，
 你在回调里改的值会被下一帧的变换结果盖掉。
 
-10.4.0 修复了这个问题，现在回调里的修改会被正确纳入。本章讲缩放文字的那一页
-正是依赖这个行为——它在 `transform` 里把 `scaleX` 复位。
+10.4.0 修复了这个问题，现在回调里的修改会被正确纳入。
+[缩放文字](/docs/select-and-transform/resize-text)正是依赖这个行为——
+它在 `transform` 里把 `scaleX` 复位。
 
 ## 性能提示
 

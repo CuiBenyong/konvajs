@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Ignore Stroke Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #F0F0F0;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <script>
+    var stage = new Konva.Stage({
+      container: 'container',
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    // 做法一：变换结束后把 scale 折算进 width/height 再复位
+    var rect1 = new Konva.Rect({
+      x: 60, y: 100, width: 100, height: 100,
+      fill: '#5aa469', stroke: 'black', strokeWidth: 5, draggable: true,
+      name: 'reset-on-end'
+    });
+    layer.add(rect1);
+    layer.add(new Konva.Transformer({ nodes: [rect1] }));
+
+    rect1.on('transformend', function () {
+      var scaleX = rect1.scaleX();
+      var scaleY = rect1.scaleY();
+      rect1.scaleX(1);
+      rect1.scaleY(1);
+      // Math.max 不是装饰：快速拖过头时宽高会变成极小值甚至负数
+      rect1.width(Math.max(5, rect1.width() * scaleX));
+      rect1.height(Math.max(5, rect1.height() * scaleY));
+    });
+
+    // 做法二：直接关掉描边缩放
+    var rect2 = new Konva.Rect({
+      x: 280, y: 100, width: 100, height: 100,
+      fill: '#c04040', stroke: 'black', strokeWidth: 5,
+      strokeScaleEnabled: false, draggable: true,
+      name: 'no-stroke-scale'
+    });
+    layer.add(rect2);
+    layer.add(new Konva.Transformer({ nodes: [rect2] }));
+
+    layer.add(new Konva.Text({
+      x: 20, y: 20, fontSize: 14, fill: '#333',
+      text: '左：transformend 折算复位（scale 始终为 1）\n右：strokeScaleEnabled 为 false（scale 不复位）\n两者缩放后描边粗细都不变。'
+    }));
+  </script>
+
+</body>
+</html>

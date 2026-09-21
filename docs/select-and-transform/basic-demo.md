@@ -183,8 +183,9 @@ stage.on('click tap', (e) => {
 这是 Transformer 的设计：它改的是 `scaleX` / `scaleY`，不是 `width` / `height`。
 
 对大多数图形没有区别，但对文字和带描边的图形会出问题——字形会被拉伸变形，
-描边会跟着变粗。这两种情况都需要在变换事件里把缩放量折算回真实属性再把 scale 复位，
-本章后面有专门的两页讲这件事。
+描边会跟着变粗。这两种情况的处理办法见
+[缩放文字](/docs/select-and-transform/resize-text)与
+[描边不随缩放变粗](/docs/select-and-transform/ignore-stroke)。
 
 ## 性能提示
 

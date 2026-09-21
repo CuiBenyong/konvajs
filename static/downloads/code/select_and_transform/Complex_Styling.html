@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Transformer Complex Styling Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #F0F0F0;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <script>
+    var stage = new Konva.Stage({
+      container: 'container',
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    var rect = new Konva.Rect({
+      x: 120, y: 100, width: 160, height: 110,
+      fill: '#5aa469', draggable: true
+    });
+    layer.add(rect);
+
+    var tr = new Konva.Transformer({
+      nodes: [rect],
+      // 逐锚点定制：回调收到锚点节点本身，直接改属性即可，不需要返回值
+      anchorStyleFunc: function (anchor) {
+        if (anchor.hasName('rotater')) {
+          anchor.cornerRadius(10);
+          anchor.fill('#d08a3e');
+          anchor.width(20);
+          anchor.height(20);
+          anchor.offsetX(10);
+          anchor.offsetY(10);
+          return;
+        }
+        // 四个角用方形深色锚点，四条边的中点隐藏
+        if (anchor.hasName('top-center') || anchor.hasName('bottom-center') ||
+            anchor.hasName('middle-left') || anchor.hasName('middle-right')) {
+          anchor.visible(false);
+          return;
+        }
+        anchor.fill('#333');
+        anchor.stroke('#fff');
+        anchor.strokeWidth(2);
+      }
+    });
+    layer.add(tr);
+
+    layer.add(new Konva.Text({
+      x: 20, y: 20, fontSize: 14, fill: '#333',
+      text: '旋转把手为橙色圆形，四角为深色方块，四边中点已隐藏。'
+    }));
+  </script>
+
+</body>
+</html>

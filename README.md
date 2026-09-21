@@ -50,7 +50,7 @@ npm run verify     # 只跑检查器（需先 build）
 | `demos` | iframe 指向的演示文件存在，且页面名与演示名一致 |
 | `konva-version` | 全站无旧版本残留，统一为浮动大版本 `konva@10` |
 | `demo-health` | 真实 Chrome 加载全部演示，无控制台错误且画布非空 |
-| `originality` | 页面三段结构、原创小节字数、FAQ 问句格式。生效范围由 `ENFORCED_PREFIXES` 控制 |
+| `originality` | 页面三段结构、原创小节字数、FAQ 问句格式。当前生效范围：`docs/shapes/`、`docs/select-and-transform/` |
 
 ## 需要配置的凭据
 
@@ -72,7 +72,7 @@ npm run verify     # 只跑检查器（需先 build）
 ## 目录结构
 
 ```
-docs/              # 内容，97 页
+docs/              # 内容，110 页
 src/
   components/Ad/   # 广告组件
   config/          # ads.ts、analytics.ts
