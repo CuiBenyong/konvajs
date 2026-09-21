@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Centered Scaling Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #F0F0F0;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <script>
+    var stage = new Konva.Stage({
+      container: 'container',
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    var rect = new Konva.Rect({
+      x: 120, y: 80, width: 140, height: 100,
+      fill: 'orange', stroke: 'black', strokeWidth: 2, draggable: true
+    });
+    layer.add(rect);
+
+    // centeredScaling 让缩放以图形中心为基准：拖任一角，
+    // 对角不再固定，图形向两侧同时伸缩
+    var tr = new Konva.Transformer({
+      nodes: [rect],
+      centeredScaling: true
+    });
+    layer.add(tr);
+
+    layer.add(new Konva.Text({
+      x: 20, y: 20, fontSize: 14, fill: '#333',
+      text: '拖动任一角：图形以中心为基准缩放。按住 ALT 可临时切换回默认行为。'
+    }));
+  </script>
+
+</body>
+</html>

@@ -1,5 +1,5 @@
 {
-  "total": 118,
+  "total": 122,
   "results": [
     {
       "file": "downloads/code/animations/Moving.html",
@@ -557,6 +557,34 @@
     },
     {
       "file": "downloads/code/select_and_transform/Basic_Demo.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/select_and_transform/Centered_Scaling.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/select_and_transform/Keep_Ratio.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/select_and_transform/Resize_Limits.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/select_and_transform/Rotation_Snaps.html",
       "ok": true,
       "errors": [],
       "canvasCount": 1,

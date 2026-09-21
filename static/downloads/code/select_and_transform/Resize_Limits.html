@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Resize Limits Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #F0F0F0;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <script>
+    var stage = new Konva.Stage({
+      container: 'container',
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    var rect = new Konva.Rect({
+      x: 80, y: 90, width: 100, height: 100,
+      fill: 'yellow', stroke: 'black', strokeWidth: 2, draggable: true
+    });
+    layer.add(rect);
+
+    var MAX_WIDTH = 200;
+
+    var tr = new Konva.Transformer({
+      nodes: [rect],
+      boundBoxFunc: function (oldBox, newBox) {
+        if (newBox.width > MAX_WIDTH) {
+          // 在新旧框之间按比例插值，让结果正好落在 MAX_WIDTH 上。
+          // 直接 return oldBox 也能拦住，但快速拖动时图形会停在
+          // 离限制值还有一段的位置，手感发黏。
+          var t = (MAX_WIDTH - oldBox.width) / (newBox.width - oldBox.width);
+          return {
+            x: oldBox.x + t * (newBox.x - oldBox.x),
+            y: oldBox.y + t * (newBox.y - oldBox.y),
+            width: MAX_WIDTH,
+            height: oldBox.height + t * (newBox.height - oldBox.height),
+            rotation: newBox.rotation
+          };
+        }
+        return newBox;
+      }
+    });
+    layer.add(tr);
+
+    layer.add(new Konva.Text({
+      x: 20, y: 20, fontSize: 14, fill: '#333',
+      text: '向右拖动：宽度到 200 就停住，且停得干脆，不会拖到一半卡住。'
+    }));
+  </script>
+
+</body>
+</html>

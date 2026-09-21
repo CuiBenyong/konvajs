@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Keep Ratio Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #F0F0F0;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <script>
+    var stage = new Konva.Stage({
+      container: 'container',
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    var locked = new Konva.Rect({
+      x: 60, y: 80, width: 120, height: 90,
+      fill: '#4078c0', stroke: 'black', strokeWidth: 2, draggable: true
+    });
+    layer.add(locked);
+    // keepRatio 默认就是 true，这里显式写出来是为了和右边对照
+    layer.add(new Konva.Transformer({ nodes: [locked], keepRatio: true }));
+
+    var free = new Konva.Rect({
+      x: 280, y: 80, width: 120, height: 90,
+      fill: '#c04040', stroke: 'black', strokeWidth: 2, draggable: true
+    });
+    layer.add(free);
+    layer.add(new Konva.Transformer({ nodes: [free], keepRatio: false }));
+
+    layer.add(new Konva.Text({
+      x: 20, y: 20, fontSize: 14, fill: '#333',
+      text: '左：keepRatio 为 true，拖角保持宽高比（按住 SHIFT 临时解除）\n右：keepRatio 为 false，拖角可自由变形'
+    }));
+  </script>
+
+</body>
+</html>

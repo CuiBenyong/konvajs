@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Rotation Snaps Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #F0F0F0;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <script>
+    var stage = new Konva.Stage({
+      container: 'container',
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    var rect = new Konva.Rect({
+      x: 160, y: 110, width: 140, height: 80, offsetX: 70, offsetY: 40,
+      fill: '#5aa469', stroke: 'black', strokeWidth: 2, draggable: true
+    });
+    layer.add(rect);
+
+    var tr = new Konva.Transformer({
+      nodes: [rect],
+      // 绝对角度，不是相对增量
+      rotationSnaps: [0, 90, 180, 270],
+      // 进入吸附的容差，默认 5 度；感觉「不吸」时先调这个
+      rotationSnapTolerance: 12
+    });
+    layer.add(tr);
+
+    var label = new Konva.Text({ x: 20, y: 20, fontSize: 14, fill: '#333', text: '' });
+    layer.add(label);
+
+    function showAngle() {
+      label.text('当前角度：' + Math.round(rect.rotation()) +
+        '°\n拖动顶部的旋转把手，靠近 0/90/180/270 时会吸附。');
+    }
+    showAngle();
+    rect.on('transform', showAngle);
+  </script>
+
+</body>
+</html>
