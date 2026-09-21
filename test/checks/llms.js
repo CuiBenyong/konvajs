@@ -1,4 +1,5 @@
 'use strict';
+const { siteUrl, legacySiteUrl } = require('../lib/site-meta');
 
 module.exports = {
   name: 'llms.txt',
@@ -25,8 +26,16 @@ module.exports = {
     if (relativeLinks > 0) {
       problems.push(`llms.txt 有 ${relativeLinks} 条相对链接，必须使用绝对地址`);
     }
-    if (!txt.includes('https://front-end-js.top')) {
-      problems.push('llms.txt 中不含本站绝对地址');
+    const SITE_URL = siteUrl(ctx);
+    if (!SITE_URL) {
+      problems.push('无法从 siteMeta.ts 读出 SITE_URL');
+    } else if (!txt.includes(SITE_URL)) {
+      problems.push(`llms.txt 中不含本站绝对地址 ${SITE_URL}`);
+    }
+    // 迁移后若仍出现主域地址，说明有硬编码漏改，AI 抓到的会是跳转前的地址
+    const LEGACY = legacySiteUrl(ctx);
+    if (LEGACY && new RegExp(`${LEGACY.replace(/[.]/g, '\\.')}(?![\\w-])`).test(txt)) {
+      problems.push(`llms.txt 中仍出现迁移前的主域 ${LEGACY}`);
     }
     // 每条都应带摘要，否则 llms.txt 相对 sitemap.xml 就没有增量价值。
     const withoutDesc = (txt.match(/^- \[[^\]]*\]\([^)]*\)$/gm) || []).length;

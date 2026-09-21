@@ -7,7 +7,15 @@
  * 在多处重复硬编码后失去同步。
  */
 
-export const SITE_URL = 'https://front-end-js.top'
+export const SITE_URL = 'https://konva-doc-cn.front-end-js.top'
+
+/**
+ * 迁移前的主域。站点自 2026-09-21 起搬到 konva-doc-cn 子域，主域留给导航站。
+ *
+ * 保留这个常量是因为主域上还有已被搜索引擎收录的 URL，需要长期 301 到子域，
+ * 相关规则与校验都从这里取值，避免哪天有人「顺手清理」掉硬编码的旧域名。
+ */
+export const LEGACY_SITE_URL = 'https://front-end-js.top'
 
 export const SITE_DESCRIPTION =
   'Konva.js 中文文档。Konva 是基于 HTML5 Canvas 的 2D JavaScript 框架，支持图形绘制、事件、拖拽、变换、动画、滤镜与高性能缓存，适用于桌面与移动端的交互式图形应用。'

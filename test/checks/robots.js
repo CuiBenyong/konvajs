@@ -1,4 +1,5 @@
 'use strict';
+const { siteUrl } = require('../lib/site-meta');
 
 // 规格 §6.2 要求显式放行的 UA。通用 User-agent: * 已经允许了所有爬虫，
 // 这里显式列出是把立场固定下来：本站希望被 AI 检索系统抓取并引用。
@@ -63,8 +64,16 @@ module.exports = {
       }
     }
 
-    if (!/Sitemap:\s*https:\/\/front-end-js\.top\/sitemap\.xml/.test(txt)) {
-      problems.push('缺少 Sitemap 声明或地址不正确');
+    const SITE_URL = siteUrl(ctx);
+    if (!SITE_URL) {
+      problems.push('无法从 siteMeta.ts 读出 SITE_URL');
+    } else {
+      const expected = new RegExp(
+        `Sitemap:\\s*${SITE_URL.replace(/[.]/g, '\\.')}/sitemap\\.xml`
+      );
+      if (!expected.test(txt)) {
+        problems.push(`缺少 Sitemap 声明或地址不是 ${SITE_URL}/sitemap.xml`);
+      }
     }
     if (!/llms\.txt/.test(txt)) {
       problems.push('未在 robots.txt 中声明 llms.txt 位置');
