@@ -1,0 +1,83 @@
+---
+title: '灰度滤镜'
+description: '用 Konva.Filters.Grayscale 把图片转为灰度。使用任何滤镜前都必须先调用 cache() 缓存节点。'
+sidebar_position: 3
+---
+要使用滤镜在`Konva.Image`我们必须首先使用`cache（）`函数
+然后使用滤镜在`filter（）`函数。  
+
+要使用`Konva`反转图像的灰度，我们可以使用
+`Konva.Filters.Grayscale`滤镜。
+
+查看所有可用的滤镜，请查看<a href="https://konvajs.org/api/Konva.Filters.html" target="_blank">滤镜文档</a>。  
+
+<iframe src="/downloads/code/filters/Grayscale.html" style="width: 50vw;height:300px;"></iframe>
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@9.3.6/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Grayscale Image Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #F0F0F0;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <script>
+    function loadImages(sources, callback) {
+      var images = {};
+      var loadedImages = 0;
+      var numImages = 0;
+      for(var src in sources) {
+        numImages++;
+      }
+      for(var src in sources) {
+        images[src] = new Image();
+        images[src].onload = function() {
+          if(++loadedImages >= numImages) {
+            callback(images);
+          }
+        };
+        images[src].src = sources[src];
+      }
+    }
+    function buildStage(images) {
+      var stage = new Konva.Stage({
+        container: 'container',
+        width: 300,
+        height: 200
+      });
+
+      var layer = new Konva.Layer();
+
+      var lion = new Konva.Image({
+        image: images.lion,
+        x: 80,
+        y: 30,
+        draggable: true
+      });
+
+      lion.cache();
+      lion.filters([Konva.Filters.Grayscale]);
+      layer.add(lion);
+      stage.add(layer);
+    }
+
+    var sources = {
+      lion: '/assets/lion.png'
+    };
+
+    loadImages(sources, buildStage);
+  </script>
+
+</body>
+</html>
+```

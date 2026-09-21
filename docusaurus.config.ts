@@ -17,6 +17,15 @@ const config: Config = {
   // 设为 throw 可以在构建阶段就暴露出来，而不是等上线后 404。
   onBrokenLinks: 'throw',
   markdown: {
+    /**
+     * .md 按 CommonMark 解析，.mdx 才按 MDX 解析。
+     *
+     * Docusaurus 3 默认把 .md 也当 MDX，于是正文里的 `{` 会被当成 JSX 表达式
+     * 送去 acorn 解析并报错。自 dumi 迁移过来的 96 页是纯 Markdown，
+     * 里面有大量 Konva 配置对象字面量，逐个转义既无意义又会污染正文。
+     * 后续引入多框架 Tab 的页面用 .mdx 扩展名即可获得完整 MDX 能力。
+     */
+    format: 'detect',
     hooks: {
       onBrokenMarkdownLinks: 'warn',
     },
@@ -75,10 +84,12 @@ const config: Config = {
         alt: 'Konva.js',
         src: 'img/konva.png',
       },
-      // 此处只引用此刻已存在的 /docs/intro。onBrokenLinks 为 throw，
-      // 引用尚未迁入的页面会让构建失败。其余入口在内容迁移后补上。
       items: [
-        { to: '/docs/intro', position: 'left', label: '文档' },
+        { to: '/docs/intro', position: 'left', label: '开始' },
+        { to: '/docs/overview', position: 'left', label: '教程' },
+        { to: '/docs/shapes/rect', position: 'left', label: '图形' },
+        { to: '/docs/performance/all-performance-tips', position: 'left', label: '性能' },
+        { to: '/docs/support', position: 'right', label: '帮助' },
         { href: 'https://github.com/CuiBenyong/konvajs', label: 'GitHub', position: 'right' },
       ],
     },
@@ -87,7 +98,13 @@ const config: Config = {
       links: [
         {
           title: '文档',
-          items: [{ label: '开始', to: '/docs/intro' }],
+          items: [
+            { label: '开始', to: '/docs/intro' },
+            { label: '教程目录', to: '/docs/overview' },
+            { label: '图形', to: '/docs/shapes/rect' },
+            { label: '性能优化', to: '/docs/performance/all-performance-tips' },
+            { label: '帮助', to: '/docs/support' },
+          ],
         },
         {
           title: 'Konva',

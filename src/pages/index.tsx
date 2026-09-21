@@ -5,6 +5,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext'
 import Layout from '@theme/Layout'
 import Heading from '@theme/Heading'
 import clsx from 'clsx'
+import { SITE_DESCRIPTION } from '@site/siteMeta'
 import styles from './index.module.css'
 
 const FEATURES = [
@@ -31,8 +32,10 @@ const FEATURES = [
 export default function Home(): JSX.Element {
   const { siteConfig } = useDocusaurusContext()
 
+  // description 用完整站点描述而非 tagline：tagline 只有 32 字符，作为搜索结果
+  // 摘要过短，Google 通常会弃用并自行截取页面文字。
   return (
-    <Layout title="Konva.js 中文文档" description={siteConfig.tagline}>
+    <Layout title="Konva.js 中文文档" description={SITE_DESCRIPTION}>
       <header className={clsx('hero', styles.heroBanner)}>
         <div className="container">
           <Heading as="h1" className="hero__title">
@@ -40,9 +43,11 @@ export default function Home(): JSX.Element {
           </Heading>
           <p className="hero__subtitle">{siteConfig.tagline}</p>
           <div className={styles.buttons}>
-            {/* 此刻只有 /docs/intro 存在。指南入口在内容迁移后补上。 */}
             <Link className="button button--secondary button--lg" to="/docs/intro">
               开始
+            </Link>
+            <Link className="button button--secondary button--lg" to="/docs/overview">
+              教程
             </Link>
           </div>
         </div>
