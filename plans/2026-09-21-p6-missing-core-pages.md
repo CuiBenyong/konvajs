@@ -258,12 +258,31 @@ sidebar_position: 1
 ---
 ```
 
-关键技术内容（**必须先实机验证再落笔**，见 Step 2）：
-- Node 端要装 `konva` 和 `canvas`（node-canvas，原生模块）。
-- 入口是 `konva/cmj`——它不引用 `window` / `document`。直接 `require('konva')` 在 Node 下会因为找不到 DOM 而报错。
-- 没有 `container`，`new Konva.Stage({ width, height })` 直接建。
-- 导出用 `stage.toDataURL()` 拿 base64，或 `stage.toCanvas().createPNGStream()` 写文件。
-- 字体：node-canvas 不读系统字体表，中文要 `registerFont()` 显式注册，否则中文全是方框。
+关键技术内容（**已于执行时实机验证，下列为实测结果，非推演**）：
+
+> **原计划这一段写错了。** 我按记忆写的入口是 `konva/cmj`，实测 Konva 10.6.0
+> **没有这个 subpath**，`require('konva/cmj')` 报
+> `Package subpath './cmj' is not defined by "exports"`。`konva/cmj` 是 8/9 时代的约定。
+
+实测得到的正确事实（`konva@10.6.0` + `canvas@3.2.3`）：
+
+- Konva 10 的服务端入口有**两个**：`konva/canvas-backend`（node-canvas）与
+  `konva/skia-backend`（skia-canvas），都在 `package.json` 的 `exports` 里。
+- `canvas` 与 `skia-canvas` 是**可选的对等依赖**（`peerDependenciesMeta` 里
+  两个都是 `optional: true`），不会自动安装。
+- **两个 import 缺一不可**：
+  `import 'konva'` 带来图形类与 20 个滤镜，`import Konva from 'konva/canvas-backend'`
+  装上 Node 后端。实测只导后端时 `Konva.Stage` 是 function 但 **`Konva.Rect` 是
+  `undefined`、`Konva.Filters` 是 `undefined`**；只导 `konva` 不导后端，
+  `new Konva.Stage()` 抛 **`Konva.js unsupported environment.`**。
+- 两个入口都是 **ESM**，CJS 项目需要动态 `import()` 或 `"type": "module"`。
+- `Stage` 不传 `container` 可直接创建；`stage.toDataURL()` 正常产出
+  （实测 200×120 的图得到 3146 字符的 data URL）；
+  `stage.toCanvas().createPNGStream` 是 function，可直接 pipe 到文件。
+- 字体：node-canvas 通过系统 fontconfig 查找。**实测本机（macOS）中文正常渲染**
+  （"你好世界这是测试" 得到 1267 个深色像素，空串基线为 0），
+  所以不能笼统说"中文一定是方框"——问题出在不含 CJK 字体的精简容器镜像里。
+  可靠解法是 `registerFont()`，且必须在创建任何画布**之前**调用。
 
 必须包含的 h2：
 - `## 安装与入口`
