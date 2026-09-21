@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Mobile Tap And Click Demo</title>
+  <style>
+    body { margin: 0; padding: 0; overflow: hidden; background-color: #F0F0F0;
+           font: 13px/1.6 system-ui, -apple-system, sans-serif; }
+    #hint { padding: 6px 12px 0; color: #777; }
+    #log { padding: 4px 12px; height: 74px; overflow: auto;
+           font-family: ui-monospace, Menlo, monospace; font-size: 12px; }
+    #log div { padding: 1px 0; }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <div id="hint">用鼠标点和用手指点，看收到的是 click 还是 tap——Konva 只会给你其中一个。</div>
+  <div id="log"></div>
+  <script>
+    var stage = new Konva.Stage({ container: 'container', width: 320, height: 130 });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    var group = new Konva.Group({ x: 90, y: 15 });
+    group.add(new Konva.Rect({
+      x: 0, y: 0, width: 140, height: 90,
+      fill: '#e6f4ea', stroke: '#3aa657', strokeWidth: 2, cornerRadius: 6,
+    }));
+    var counter = new Konva.Text({
+      x: 0, y: 24, width: 140, align: 'center',
+      text: '0', fontSize: 34, fill: '#3aa657', listening: false,
+    });
+    group.add(counter);
+    group.add(new Konva.Text({
+      x: 0, y: 68, width: 140, align: 'center',
+      text: "on('click tap')", fontSize: 11, fill: '#555', listening: false,
+    }));
+    layer.add(group);
+    layer.draw();
+
+    var n = 0;
+    var logEl = document.getElementById('log');
+    function log(t) {
+      var d = document.createElement('div');
+      d.textContent = t;
+      logEl.appendChild(d);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    // 一次注册两个事件名：鼠标走 click，触摸走 tap，只会命中一个
+    group.on('click tap', function (e) {
+      counter.text(String(++n));
+      layer.draw();
+      log('第 ' + n + ' 次：收到 ' + e.type + '（指针类型 ' +
+          ((e.evt && e.evt.pointerType) || '未知') + '）');
+    });
+  </script>
+</body>
+</html>

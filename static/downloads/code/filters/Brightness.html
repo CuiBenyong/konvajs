@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Brightness Filter Demo</title>
+  <style>
+    body { margin: 0; padding: 0; overflow: hidden; background-color: #F0F0F0;
+           font: 13px/1.7 system-ui, -apple-system, sans-serif; }
+    #controls { padding: 6px 12px; }
+    #controls label { display: inline-block; margin-right: 14px; }
+    output { font-variant-numeric: tabular-nums; color: #555; }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <div id="controls"><label>brightness（乘数，中性值 1） <input type="range" id="b" min="0" max="3" step="0.05" value="1.6"><output id="bout">1.6</output></label></div>
+  <script>
+    var stage = new Konva.Stage({ container: 'container', width: 300, height: 200 });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    Konva.Image.fromURL('/assets/lion.png', function (img) {
+      img.setAttrs({ x: 40, y: 10, draggable: true });
+      layer.add(img);
+      // 滤镜只作用于缓存画布，没有 cache() 完全不生效
+      img.cache();
+      img.filters([Konva.Filters.Brightness]);
+      img.brightness(1.6);
+      layer.draw();
+      var b = document.getElementById('b');
+      b.addEventListener('input', function () {
+        img.brightness(parseFloat(b.value));
+        document.getElementById('bout').textContent = b.value;
+        layer.draw();
+      });
+    });
+  </script>
+</body>
+</html>

@@ -8,9 +8,28 @@ const path = require('path');
  * Konva 一个月内连发五个版本（10.3.2 至 10.6.0），钉死精确版本意味着每隔
  * 几周批量替换两百多处并重验全部演示。本次改造的起因之一，正是上一轮钉死的
  * 9.3.6 长期无人跟进。允许的写法只有 konva@10/konva.js 与 konva@10/konva.min.js。
+ *
+ * 只检查「真的会被浏览器加载的引用」，即 konva@<版本>/<路径> 这种带路径的形式。
+ * 正文里裸提一句 `konva@10`（例如「本站跟随 konva@10 浮动大版本」）不是引用，
+ * 不参与校验——否则写文档解释版本策略反而会被自己的检查拦下。
  */
-const ALLOWED_PATH = /konva@10\/konva(\.min)?\.js/;
-const ANY_KONVA_CDN = /konva@[^/\s"'`)\]]+/g;
+const CDN_REF = /konva@([^/\s"'`)\]]+)\/([^\s"'`)\]]+)/g;
+const ALLOWED_PATH = /^konva(\.min)?\.js$/;
+
+/**
+ * 反例豁免：docs 里需要展示「错误写法」才能说清楚问题，
+ * 例如 ai-tools 页要演示 AI 常生成的 konva@8 引用。
+ * 用 ❌ 标记所在行或紧邻的上一行非空行来豁免，标记必须显式写出，
+ * 避免把真的写错的引用也一起放过。
+ */
+function isCounterExample(lines, i) {
+  if (lines[i].includes('❌')) return true;
+  for (let k = i - 1; k >= 0 && k >= i - 3; k--) {
+    if (lines[k].trim() === '') continue;
+    return lines[k].includes('❌');
+  }
+  return false;
+}
 
 function walk(dir, exts, out = []) {
   if (!fs.existsSync(dir)) return out;
@@ -33,19 +52,23 @@ module.exports = {
 
     for (const file of targets) {
       const rel = path.relative(ctx.root, file).split(path.sep).join('/');
-      const text = fs.readFileSync(file, 'utf8');
-      const refs = text.match(ANY_KONVA_CDN) || [];
-      if (refs.length === 0) continue;
+      const lines = fs.readFileSync(file, 'utf8').split('\n');
+      const bad = new Set();
+      const badPath = new Set();
+      let real = 0;
 
-      const bad = [...new Set(refs.filter((r) => r !== 'konva@10'))];
-      if (bad.length) {
-        problems.push(`${rel} 仍引用旧版本：${bad.join('、')}`);
-        continue;
-      }
-      // 防止写成 konva@10/konva-min.js 之类不存在的路径
-      if (!ALLOWED_PATH.test(text)) {
-        problems.push(`${rel} 的 konva@10 引用路径不合法`);
-      }
+      lines.forEach((line, i) => {
+        for (const m of line.matchAll(CDN_REF)) {
+          // 反例只在 docs 正文里允许；演示 HTML 会被真的加载，不给豁免
+          if (rel.startsWith('docs/') && isCounterExample(lines, i)) continue;
+          real++;
+          if (m[1] !== '10') bad.add(`konva@${m[1]}`);
+          else if (!ALLOWED_PATH.test(m[2])) badPath.add(`konva@10/${m[2]}`);
+        }
+      });
+
+      if (bad.size) problems.push(`${rel} 仍引用旧版本：${[...bad].join('、')}`);
+      if (badPath.size) problems.push(`${rel} 的引用路径不合法：${[...badPath].join('、')}`);
     }
 
     return problems;

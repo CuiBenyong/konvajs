@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva High Quality Export Demo</title>
+  <style>
+    body { margin: 0; padding: 0; overflow: hidden; background-color: #F0F0F0;
+           font: 13px/1.6 system-ui, -apple-system, sans-serif; }
+    #out { display: flex; gap: 16px; padding: 8px 12px; align-items: flex-start; }
+    #out figure { margin: 0; }
+    #out img { width: 150px; height: 150px; image-rendering: auto;
+               border: 1px solid #ccc; background: #fff; }
+    figcaption { font-size: 11px; color: #666; padding-top: 2px; }
+    #info { padding: 0 12px 6px; color: #777; }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <div id="out"></div>
+  <div id="info"></div>
+  <script>
+    // 源舞台画小一点，导出后放大显示，差别才看得出来
+    var stage = new Konva.Stage({ container: 'container', width: 150, height: 150 });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    layer.add(new Konva.Rect({ x: 0, y: 0, width: 150, height: 150, fill: '#ffffff' }));
+    layer.add(new Konva.Circle({
+      x: 75, y: 62, radius: 40,
+      fill: '#cfe3ff', stroke: '#4078c0', strokeWidth: 3,
+    }));
+    layer.add(new Konva.Text({
+      x: 0, y: 112, width: 150, align: 'center',
+      text: '高清导出', fontSize: 20, fill: '#24406b',
+    }));
+    layer.draw();
+
+    var out = document.getElementById('out');
+    [1, 3].forEach(function (ratio) {
+      var url = stage.toDataURL({ pixelRatio: ratio });
+      var fig = document.createElement('figure');
+      var img = new Image();
+      img.src = url;
+      var cap = document.createElement('figcaption');
+      img.onload = function () {
+        cap.textContent = 'pixelRatio: ' + ratio + ' → ' + img.naturalWidth + '×' + img.naturalHeight;
+      };
+      fig.appendChild(img);
+      fig.appendChild(cap);
+      out.appendChild(fig);
+    });
+
+    document.getElementById('info').textContent =
+      '当前屏幕 devicePixelRatio = ' + window.devicePixelRatio +
+      '，Konva.pixelRatio = ' + Konva.pixelRatio +
+      '。两张图都被拉伸到同样的 CSS 尺寸显示。';
+  </script>
+</body>
+</html>

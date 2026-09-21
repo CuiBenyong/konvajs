@@ -16,10 +16,8 @@ sidebar_position: 99
 
 ## 生态工具
 
-* <a href="https://github.com/konvajs/react-konva" target="_blank">react-konva</a>：React 绑定，官方维护
-* <a href="https://github.com/konvajs/vue-konva" target="_blank">vue-konva</a>：Vue 绑定，官方维护
-* <a href="https://github.com/konvajs/svelte-konva" target="_blank">svelte-konva</a>：Svelte 绑定
-* TypeScript 类型声明已随 npm 包一起分发，安装 `konva` 后即可用，不需要额外装 `@types`
+官方框架绑定、TypeScript 类型、调试与性能排查手段集中在
+[周边工具](/docs/tools)一页。
 
 ## 常见问题
 

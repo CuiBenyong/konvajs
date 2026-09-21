@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva RGB Filter Demo</title>
+  <style>
+    body { margin: 0; padding: 0; overflow: hidden; background-color: #F0F0F0;
+           font: 13px/1.7 system-ui, -apple-system, sans-serif; }
+    #controls { padding: 6px 12px; }
+    #controls label { display: inline-block; margin-right: 14px; }
+    output { font-variant-numeric: tabular-nums; color: #555; }
+    #note { padding: 0 12px 6px; color: #777; }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <div id="controls"><label>red <input type="range" id="r" min="0" max="255" step="1" value="255"><output id="ro">255</output></label><label>green <input type="range" id="g" min="0" max="255" step="1" value="120"><output id="go">120</output></label><label>blue <input type="range" id="b" min="0" max="255" step="1" value="0"><output id="bo">0</output></label></div>
+  <div id="note">RGB 是把整块区域替换成指定色调（保留亮度），不是在原色上叠加。</div>
+  <script>
+    var stage = new Konva.Stage({ container: 'container', width: 300, height: 200 });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+    Konva.Image.fromURL('/assets/lion.png', function (img) {
+      img.setAttrs({ x: 40, y: 10, draggable: true });
+      layer.add(img);
+      img.cache();
+      img.filters([Konva.Filters.RGB]);
+      img.red(255);
+      img.green(120);
+      img.blue(0);
+      layer.draw();
+      var r=document.getElementById('r');
+      r.addEventListener('input',function(){
+        img.red(parseFloat(r.value));
+        document.getElementById('ro').textContent=r.value;
+        layer.draw();
+      });
+      var g=document.getElementById('g');
+      g.addEventListener('input',function(){
+        img.green(parseFloat(g.value));
+        document.getElementById('go').textContent=g.value;
+        layer.draw();
+      });
+      var b=document.getElementById('b');
+      b.addEventListener('input',function(){
+        img.blue(parseFloat(b.value));
+        document.getElementById('bo').textContent=b.value;
+        layer.draw();
+      });
+    });
+  </script>
+</body>
+</html>

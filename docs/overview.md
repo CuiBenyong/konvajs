@@ -91,3 +91,7 @@ Canvas 的优势在于**图形数量多**时的性能——上千个元素时 SV
 
 一句话区分：**做图表和静态图形用原生或 SVG，做可交互的画布应用用 Konva，
 做完整的设计工具考虑 Fabric，做游戏和高性能视觉用 Pixi。**
+
+这一节只给结论。完整的对比维度、各方案的性能拐点与可直接套用的决策路径，
+见[为什么选择 Konva](/docs/guides/why-konva)与
+[Canvas 库怎么选](/docs/guides/best-canvas-library)。

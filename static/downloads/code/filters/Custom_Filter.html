@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Custom Filter Demo</title>
+  <style>
+    body { margin: 0; padding: 0; overflow: hidden; background-color: #F0F0F0;
+           font: 13px/1.7 system-ui, -apple-system, sans-serif; }
+    #controls { padding: 6px 12px; }
+    output { font-variant-numeric: tabular-nums; color: #555; }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <div id="controls">
+    <label>扫描线间距（节点坐标 px）
+      <input type="range" id="gap" min="2" max="16" step="1" value="6">
+      <output id="gapout">6</output>
+    </label>
+  </div>
+  <script>
+    var stage = new Konva.Stage({ container: 'container', width: 320, height: 210 });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    var gap = 6;
+
+    /**
+     * 自定义滤镜：横向扫描线。
+     * 10.6.0 起签名是 (imageData, pixelRatio)。
+     * gap 是「节点坐标」里的长度，要乘 pixelRatio 才是缓存画布的像素数。
+     */
+    function ScanlinesCorrect(imageData, pixelRatio) {
+      var step = Math.max(1, Math.round(gap * (pixelRatio || 1)));
+      var d = imageData.data, w = imageData.width, h = imageData.height;
+      for (var y = 0; y < h; y++) {
+        if (y % step !== 0) continue;
+        for (var x = 0; x < w; x++) {
+          var i = (y * w + x) * 4;
+          d[i] *= 0.25; d[i + 1] *= 0.25; d[i + 2] *= 0.25;
+        }
+      }
+    }
+
+    /** 同一个滤镜，但忽略了 pixelRatio —— 缓存 pixelRatio 为 2 时线会密一倍。 */
+    function ScanlinesWrong(imageData) {
+      var step = Math.max(1, gap);
+      var d = imageData.data, w = imageData.width, h = imageData.height;
+      for (var y = 0; y < h; y++) {
+        if (y % step !== 0) continue;
+        for (var x = 0; x < w; x++) {
+          var i = (y * w + x) * 4;
+          d[i] *= 0.25; d[i + 1] *= 0.25; d[i + 2] *= 0.25;
+        }
+      }
+    }
+
+    function label(text, x) {
+      return new Konva.Text({ x: x, y: 2, text: text, fontSize: 12, fill: '#333' });
+    }
+
+    Konva.Image.fromURL('/assets/lion.png', function (proto) {
+      var left = proto;
+      left.setAttrs({ x: 10, y: 20, scaleX: 0.6, scaleY: 0.6 });
+      var right = left.clone({ x: 170 });
+
+      layer.add(label('用了 pixelRatio', 10));
+      layer.add(label('忽略 pixelRatio', 170));
+      layer.add(left);
+      layer.add(right);
+
+      function apply() {
+        // 特意用 pixelRatio: 2 缓存，好让两者的差别显出来
+        left.cache({ pixelRatio: 2 });
+        left.filters([ScanlinesCorrect]);
+        right.cache({ pixelRatio: 2 });
+        right.filters([ScanlinesWrong]);
+        layer.draw();
+      }
+      apply();
+
+      var g = document.getElementById('gap');
+      g.addEventListener('input', function () {
+        gap = parseInt(g.value, 10);
+        document.getElementById('gapout').textContent = g.value;
+        apply();
+      });
+    });
+  </script>
+</body>
+</html>

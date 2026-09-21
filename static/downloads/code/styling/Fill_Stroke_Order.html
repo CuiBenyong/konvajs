@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Fill Stroke Order Demo</title>
+  <style>
+    body { margin: 0; padding: 0; overflow: hidden; background-color: #F0F0F0;
+           font: 13px/1.6 system-ui, -apple-system, sans-serif; }
+    #hint { padding: 6px 12px; color: #777; }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <div id="hint">描边是半透明的粗边时，两种顺序差别明显；不透明的细边则完全看不出区别。</div>
+  <script>
+    var stage = new Konva.Stage({ container: 'container', width: 340, height: 250 });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    function pair(y, sw, strokeColor, label) {
+      layer.add(new Konva.Text({ x: 12, y: y - 14, text: label, fontSize: 12, fill: '#555' }));
+      // 左：默认，先填充后描边（描边压在填充上）
+      layer.add(new Konva.Rect({
+        x: 20, y: y, width: 110, height: 70,
+        fill: 'tomato', stroke: strokeColor, strokeWidth: sw,
+        fillAfterStrokeEnabled: false,
+      }));
+      layer.add(new Konva.Text({
+        x: 20, y: y + 78, text: 'fillAfterStrokeEnabled: false', fontSize: 10, fill: '#777',
+      }));
+      // 右：先描边后填充
+      layer.add(new Konva.Rect({
+        x: 195, y: y, width: 110, height: 70,
+        fill: 'tomato', stroke: strokeColor, strokeWidth: sw,
+        fillAfterStrokeEnabled: true,
+      }));
+      layer.add(new Konva.Text({
+        x: 195, y: y + 78, text: 'fillAfterStrokeEnabled: true', fontSize: 10, fill: '#777',
+      }));
+    }
+
+    pair(28, 20, 'rgba(0, 0, 255, 0.5)', '半透明粗描边 —— 差别明显');
+    pair(150, 2, '#003366', '不透明细描边 —— 两边一样');
+
+    layer.draw();
+  </script>
+</body>
+</html>

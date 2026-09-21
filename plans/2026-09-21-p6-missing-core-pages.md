@@ -42,6 +42,33 @@
 - 演示里的图片一律用**站内绝对路径** `/assets/<file>`，不得引外部图床——外链图片会让 `demo-health` 受网络波动影响，且国内可达性不可控。
 - 所有内部链接必须指向**已存在**的页面。`onBrokenLinks: 'throw'`，指向本计划后续 Task 才创建的页面会导致构建失败。**若必须提前引用，先写成纯文字，在创建目标页的 Task 里再补链接。**
 
+## 执行顺序的一个硬约束（Task 1 实测发现）
+
+**新增页必须先 `git commit`，再 `npm run build && npm run verify`。**
+
+`canonical 与 sitemap` 这项检查会比对 sitemap 的 `loc` 数与 `lastmod` 数，
+而 `lastmod` 由 Docusaurus 从 **`git log`** 读取。未提交的新页拿不到提交时间，
+sitemap 里就只有 `loc` 没有 `lastmod`，该项必然 FAIL：
+
+```
+sitemap 有 113 条 loc 但只有 111 条 lastmod。lastmod 取自 git 提交记录，
+缺失多半是有页面尚未 git add
+```
+
+**`git add` 不够，必须真正 commit** —— `git log` 看不到暂存区。
+
+所以每个 Task 的收尾顺序是：
+
+1. `npm run build` —— 先确认能构建（`onBrokenLinks: 'throw'` 会在这里拦住坏链接）
+2. `npm run demo-health` —— 有新演示时
+3. `git commit`
+4. `npm run build && npm run verify` —— 提交后重跑，这次 sitemap 才会完整
+
+下面各 Task 的步骤按「构建 → 校验 → 提交」写，**实际执行时按上面四步走**。
+若某个 Task 提交后 verify 才发现问题，用 `git commit --amend` 修正，不要留一个红的提交。
+
+---
+
 ## 侧边栏位置分配（全局，Task 1 落地）
 
 根级页用 `sidebar_position`，章节用 `_category_.json` 的 `position`，两者在同一个序列里排序，**不得冲突**：
@@ -89,7 +116,8 @@
 | F21 | `toDataURL` / `toImage` / `toCanvas` / `toBlob` 的 `pixelRatio` **默认是 1，不是设备像素比**。这意味着在 2x 屏上导出的图默认比屏幕上看到的糊一半 | `Node.js:1715,1748,1776,1812,1852` | `data-and-serialization/high-quality-export.md` |
 | F22 | `cache()` 的 `pixelRatio` 默认则是 `Konva.pixelRatio`（设备像素比）——**与导出的默认值不一致**，这是两处最容易混淆的地方 | `Node.js:240` | `data-and-serialization/high-quality-export.md` |
 | F23 | `Konva.pointerEventsEnabled` 默认 `true`。指针事件名：`pointerdown`/`pointermove`/`pointerup`/`pointercancel`/`pointerclick`/`pointerdblclick`/`pointerover`/`pointerout`/`pointerenter`/`pointerleave` | `Global.js:40`、`Stage.js:10,23-41` | `events/pointer-events.md` |
-| F24 | Konva 内部把一次指针交互按 `pointerType` **同时派发两套事件**：鼠标时 `pointerdown` → 也触发 `mousedown`，触摸时 `pointerdown` → 也触发 `touchstart`。同时监听 `pointerdown` 和 `mousedown` 会**收到两次** | `Stage.js:32-50` | `events/pointer-events.md`、`events/mobile-tap-and-click.md` |
+| F24 | Konva 内部把一次指针交互按 `pointerType` **同时派发两套事件**。实测顺序——鼠标：`pointerdown → mousedown → pointerup → pointerclick → mouseup → click`；触摸：`pointerdown → touchstart → pointerup → pointerclick → touchend → tap`。同时监听 `pointerdown` 和 `mousedown` 会**收到两次**。**但 `click` 与 `tap` 不会同时触发**——`pointerclick` 按 `pointerType` 只映射成其中一个 | `Stage.js:32-53`，实测 | `events/pointer-events.md` |
+| F24b | **执行时推翻的计划假设。** 原计划断言「同时监听 `click` 和 `tap` 在移动端会执行两次」，**这是错的**。Konva 在 `_pointerdown` 里对触摸事件默认调用 `evt.preventDefault()`（`Stage.js:574-577`，节点的 `preventDefault` 属性默认 `true`，见 `Node.js:2826`），浏览器的合成点击被抑制，所以 `on('click tap')` 只会触发一次。双重触发只在 `shape.preventDefault(false)` 时才会回来——而为了让画布区域能滚动页面，关掉它是常见需求 | `Stage.js:574-577`、`Node.js:2826` | `events/mobile-tap-and-click.md` |
 | F25 | `Konva.dragDistance` 默认 `3`（px）；`Konva.hitOnDragEnabled` 默认 `false`——拖拽过程中不做命中检测 | `Global.js:61,107` | `events/mobile-tap-and-click.md` |
 
 ---
@@ -231,12 +259,31 @@ sidebar_position: 1
 ---
 ```
 
-关键技术内容（**必须先实机验证再落笔**，见 Step 2）：
-- Node 端要装 `konva` 和 `canvas`（node-canvas，原生模块）。
-- 入口是 `konva/cmj`——它不引用 `window` / `document`。直接 `require('konva')` 在 Node 下会因为找不到 DOM 而报错。
-- 没有 `container`，`new Konva.Stage({ width, height })` 直接建。
-- 导出用 `stage.toDataURL()` 拿 base64，或 `stage.toCanvas().createPNGStream()` 写文件。
-- 字体：node-canvas 不读系统字体表，中文要 `registerFont()` 显式注册，否则中文全是方框。
+关键技术内容（**已于执行时实机验证，下列为实测结果，非推演**）：
+
+> **原计划这一段写错了。** 我按记忆写的入口是 `konva/cmj`，实测 Konva 10.6.0
+> **没有这个 subpath**，`require('konva/cmj')` 报
+> `Package subpath './cmj' is not defined by "exports"`。`konva/cmj` 是 8/9 时代的约定。
+
+实测得到的正确事实（`konva@10.6.0` + `canvas@3.2.3`）：
+
+- Konva 10 的服务端入口有**两个**：`konva/canvas-backend`（node-canvas）与
+  `konva/skia-backend`（skia-canvas），都在 `package.json` 的 `exports` 里。
+- `canvas` 与 `skia-canvas` 是**可选的对等依赖**（`peerDependenciesMeta` 里
+  两个都是 `optional: true`），不会自动安装。
+- **两个 import 缺一不可**：
+  `import 'konva'` 带来图形类与 20 个滤镜，`import Konva from 'konva/canvas-backend'`
+  装上 Node 后端。实测只导后端时 `Konva.Stage` 是 function 但 **`Konva.Rect` 是
+  `undefined`、`Konva.Filters` 是 `undefined`**；只导 `konva` 不导后端，
+  `new Konva.Stage()` 抛 **`Konva.js unsupported environment.`**。
+- 两个入口都是 **ESM**，CJS 项目需要动态 `import()` 或 `"type": "module"`。
+- `Stage` 不传 `container` 可直接创建；`stage.toDataURL()` 正常产出
+  （实测 200×120 的图得到 3146 字符的 data URL）；
+  `stage.toCanvas().createPNGStream` 是 function，可直接 pipe 到文件。
+- 字体：node-canvas 通过系统 fontconfig 查找。**实测本机（macOS）中文正常渲染**
+  （"你好世界这是测试" 得到 1267 个深色像素，空串基线为 0），
+  所以不能笼统说"中文一定是方框"——问题出在不含 CJK 字体的精简容器镜像里。
+  可靠解法是 `registerFont()`，且必须在创建任何画布**之前**调用。
 
 必须包含的 h2：
 - `## 安装与入口`

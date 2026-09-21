@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Threshold Filter Demo</title>
+  <style>
+    body { margin: 0; padding: 0; overflow: hidden; background-color: #F0F0F0;
+           font: 13px/1.7 system-ui, -apple-system, sans-serif; }
+    #controls { padding: 6px 12px; }
+    #controls label { display: inline-block; margin-right: 14px; }
+    output { font-variant-numeric: tabular-nums; color: #555; }
+    #note { padding: 0 12px 6px; color: #777; }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <div id="controls"><label>threshold <input type="range" id="t" min="0" max="1" step="0.02" value="0.5"><output id="to">0.5</output></label></div>
+  <div id="note">Threshold 连 alpha 通道一起二值化，所以半透明的边缘会变成完全硬的锯齿。</div>
+  <script>
+    var stage = new Konva.Stage({ container: 'container', width: 300, height: 200 });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+    Konva.Image.fromURL('/assets/lion.png', function (img) {
+      img.setAttrs({ x: 40, y: 10, draggable: true });
+      layer.add(img);
+      img.cache();
+      img.filters([Konva.Filters.Threshold]);
+      img.threshold(0.5);
+      layer.draw();
+      var t=document.getElementById('t');
+      t.addEventListener('input',function(){
+        img.threshold(parseFloat(t.value));
+        document.getElementById('to').textContent=t.value;
+        layer.draw();
+      });
+    });
+  </script>
+</body>
+</html>

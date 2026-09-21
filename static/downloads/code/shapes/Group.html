@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Group Demo</title>
+  <style>
+    body { margin: 0; padding: 0; overflow: hidden; background-color: #F0F0F0;
+           font: 13px/1.7 system-ui, -apple-system, sans-serif; }
+    #note { padding: 4px 12px; color: #777; }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <div id="note">左边三个图形在同一个 Group 里，整体可拖、可旋转；右边是未分组的对照。</div>
+  <script>
+    var stage = new Konva.Stage({ container: 'container', width: 340, height: 220 });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    // 一个 Group：内部三个图形作为整体变换
+    var group = new Konva.Group({
+      x: 20,
+      y: 20,
+      rotation: 12,
+      draggable: true,
+    });
+
+    group.add(new Konva.Rect({
+      x: 0, y: 0, width: 120, height: 90,
+      fill: '#cfe3ff', stroke: '#4078c0', strokeWidth: 2, cornerRadius: 6,
+    }));
+    group.add(new Konva.Circle({ x: 30, y: 30, radius: 18, fill: '#4078c0' }));
+    group.add(new Konva.Text({
+      x: 10, y: 60, text: '整体拖我', fontSize: 16, fill: '#24406b',
+    }));
+
+    layer.add(group);
+
+    // 对照：同样的三个图形，各自独立
+    var rect = new Konva.Rect({
+      x: 190, y: 20, width: 120, height: 90,
+      fill: '#ffe0cc', stroke: '#c06040', strokeWidth: 2, cornerRadius: 6,
+      draggable: true,
+    });
+    var circle = new Konva.Circle({ x: 220, y: 50, radius: 18, fill: '#c06040', draggable: true });
+    var text = new Konva.Text({
+      x: 200, y: 80, text: '各拖各的', fontSize: 16, fill: '#7a3520', draggable: true,
+    });
+    layer.add(rect);
+    layer.add(circle);
+    layer.add(text);
+
+    // Group 没有自己的宽高，包围盒要问 getClientRect
+    var box = group.getClientRect();
+    layer.add(new Konva.Text({
+      x: 20, y: 150, fontSize: 12, fill: '#555',
+      text: 'group.width() = ' + group.width() +
+            '\ngroup.getClientRect() = ' +
+            Math.round(box.width) + ' x ' + Math.round(box.height),
+    }));
+
+    layer.draw();
+  </script>
+</body>
+</html>
