@@ -3,12 +3,15 @@ const fs = require('fs');
 const path = require('path');
 
 /**
- * 已按规格 §4.4 改造完成、开始强制校验的目录。
+ * 强制校验的范围。
  *
- * 不一次性对全部 97 页开启：未开工的页面会让 CI 立刻全红，
- * 真实的回归就淹没在里面了。P4 每完成一个章节就把它加进来。
+ * 全部内容已于 P5 改造完毕，这里收敛为单个 'docs/' 前缀——
+ * 此后新增的任何页面都自动纳入校验，不需要再维护这个列表。
+ *
+ * 之前是逐章节追加的：一次性对全部页面开启会让 CI 立刻全红，
+ * 真实的回归就淹没在里面了。现在没有未开工的页面，这层保护不再需要。
  */
-const ENFORCED_PREFIXES = ['docs/shapes/', 'docs/select-and-transform/', 'docs/events/', 'docs/performance/', 'docs/drag-and-drop/', 'docs/styling/', 'docs/filters/', 'docs/tweens/', 'docs/animations/', 'docs/data-and-serialization/', 'docs/selectors/', 'docs/groups-and-layers/', 'docs/clipping/'];
+const ENFORCED_PREFIXES = ['docs/'];
 
 /** 每页必须有的小节。 */
 const REQUIRED_SECTION = '常见问题';

@@ -106,6 +106,17 @@ function extractFaq(html: string): { question: string; answer: string }[] {
   return out
 }
 
+/**
+ * 把 JSON 序列化成可安全嵌入 <script> 的字符串。
+ *
+ * 必须转义 `<`：只要正文里出现 `</script>`（例如 FAQ 里贴了一段 HTML 示例代码），
+ * 它就会提前闭合 script 标签，后面的 JSON 变成页面文本，整段结构化数据作废。
+ * 用 \u003c 转义后语义不变，而浏览器不会把它识别为标签起始。
+ */
+function jsonForScript(value: unknown): string {
+  return JSON.stringify(value).replace(/</g, '\\u003c')
+}
+
 /** 移除已有的 BreadcrumbList JSON-LD，避免同页出现两份互相矛盾的层级声明。 */
 function removeExistingBreadcrumb(html: string): string {
   return html.replace(
@@ -209,9 +220,9 @@ export default function structuredDataPlugin(): Plugin {
             : null
 
         const injected =
-          `<script type="application/ld+json">${JSON.stringify(techArticle)}</script>` +
-          `<script type="application/ld+json">${JSON.stringify(breadcrumb)}</script>` +
-          (faqLd ? `<script type="application/ld+json">${JSON.stringify(faqLd)}</script>` : '')
+          `<script type="application/ld+json">${jsonForScript(techArticle)}</script>` +
+          `<script type="application/ld+json">${jsonForScript(breadcrumb)}</script>` +
+          (faqLd ? `<script type="application/ld+json">${jsonForScript(faqLd)}</script>` : '')
 
         const html = removeExistingBreadcrumb(original).replace('</head>', `${injected}</head>`)
         await fs.writeFile(file, html)

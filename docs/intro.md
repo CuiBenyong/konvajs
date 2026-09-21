@@ -283,3 +283,75 @@ shape.cache();
 更新形状时，您不需要更新背景画布 <a href="/docs/performance/layer-management" target="_blank">Demo</a>
 
 <a href="/docs/performance/all-performance-tips" target="_blank">All_Performance_Tips</a>
+
+## 常见问题
+
+### npm 装完之后怎么在普通 HTML 里用？
+
+这是最常见的卡点。`npm install konva` 装下来的是 ES 模块，
+直接在 `<script>` 里写 `import Konva from 'konva'` 浏览器会报错——
+除非给 script 标签加上 `type="module"`，或者用打包工具处理。
+
+不想引入构建流程的话，直接用 CDN 版本，它挂在全局 `Konva` 上：
+
+```html
+<script src="https://unpkg.com/konva@10/konva.min.js"></script>
+<script>
+  var stage = new Konva.Stage({ container: 'c', width: 400, height: 300 });
+</script>
+```
+
+本站所有演示用的都是这种方式，复制粘贴就能跑。
+
+另外 Konva 10.0.0 起包本身已经全面转为 ES 模块，
+在 CommonJS 环境里 `require` 需要取 `.default`：`const Konva = require('konva').default`。
+
+### container 传什么？
+
+可以是元素的 id 字符串，也可以是 DOM 元素本身：
+
+```js
+new Konva.Stage({ container: 'my-div' });
+new Konva.Stage({ container: document.getElementById('my-div') });
+```
+
+要点是这个元素**必须已经存在于文档中**。在 React、Vue 里于组件挂载完成前
+创建舞台，会因为拿不到元素而失败——要放在 `useEffect` 或 `onMounted` 里。
+
+### 代码没报错，但画布上什么都没有？
+
+按这个顺序查：
+
+1. **图形加到图层了吗**——`layer.add(shape)`
+2. **图层加到舞台了吗**——`stage.add(layer)`。漏掉这一步是最常见的原因
+3. **图形有尺寸吗**——`Konva.Rect` 不设 `width`/`height` 时为 0，填充色再鲜艳也看不见
+4. **有填充或描边吗**——两者都没设置的图形不会被画出来，也不参与命中检测
+5. **坐标在可视范围内吗**——舞台尺寸之外的内容不显示
+
+这五条覆盖了绝大多数「白屏」情况。
+
+## 国内环境注意事项
+
+本站演示统一使用 `https://unpkg.com/konva@10/konva.min.js`。
+unpkg 在国内的访问速度波动较大，偶尔会超时。几个可用的替代地址：
+
+```html
+<!-- jsDelivr，国内通常比 unpkg 稳定 -->
+<script src="https://cdn.jsdelivr.net/npm/konva@10/konva.min.js"></script>
+
+<!-- 字节跳动的公共 CDN -->
+<script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/konva/9.2.0/konva.min.js"></script>
+```
+
+注意第三方镜像的版本更新往往滞后，上面字节 CDN 的版本就明显落后于最新版。
+生产环境更稳妥的做法是把 konva 打包进自己的产物，或者放到自己的 CDN 上，
+不依赖公共镜像的可用性。
+
+**关于版本号写法**：本站演示写的是 `konva@10` 而不是精确版本，
+unpkg 会解析到 10.x 的最新版。这样文档不会因为小版本发布而过期——
+Konva 在 2026 年 8 到 9 月一个月内就发了五个版本，钉死版本号很快就会陈旧。
+代价是上游一旦引入回归，演示会跟着坏，所以本站配套做了演示健康检查，
+每次构建都用真实浏览器跑一遍全部演示页。
+
+你自己的项目里建议钉死精确版本并用 lockfile 锁定，那是另一套权衡——
+文档要的是「永远展示当前版本的用法」，项目要的是「构建结果可复现」。

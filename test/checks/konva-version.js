@@ -10,7 +10,7 @@ const path = require('path');
  * 9.3.6 长期无人跟进。允许的写法只有 konva@10/konva.js 与 konva@10/konva.min.js。
  */
 const ALLOWED_PATH = /konva@10\/konva(\.min)?\.js/;
-const ANY_KONVA_CDN = /konva@[^/\s"']+/g;
+const ANY_KONVA_CDN = /konva@[^/\s"'`)\]]+/g;
 
 function walk(dir, exts, out = []) {
   if (!fs.existsSync(dir)) return out;
