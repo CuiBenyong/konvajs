@@ -8,7 +8,7 @@ const path = require('path');
  * 不一次性对全部 97 页开启：未开工的页面会让 CI 立刻全红，
  * 真实的回归就淹没在里面了。P4 每完成一个章节就把它加进来。
  */
-const ENFORCED_PREFIXES = ['docs/shapes/', 'docs/select-and-transform/', 'docs/events/', 'docs/performance/', 'docs/drag-and-drop/'];
+const ENFORCED_PREFIXES = ['docs/shapes/', 'docs/select-and-transform/', 'docs/events/', 'docs/performance/', 'docs/drag-and-drop/', 'docs/styling/', 'docs/filters/'];
 
 /** 每页必须有的小节。 */
 const REQUIRED_SECTION = '常见问题';

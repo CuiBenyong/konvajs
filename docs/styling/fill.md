@@ -4,6 +4,10 @@ description: '用 Konva 的 fill 属性或 fill() 方法填充图形。除纯色
 sidebar_position: 1
 ---
 
+填充支持纯色、渐变和图案。渐变的坐标系是最容易搞错的一处。
+
+## 用法
+
 使用`Konva`填充图形,我们可以在实例化图形是设置`fill`属性,也可以使用`fill()`方法.
 
 `Konva`支持颜色.图案.线性渐变和径向渐变.
@@ -11,8 +15,6 @@ sidebar_position: 1
 
 
 说明：鼠标悬停在每个五边形以更改其填充。 您也可以拖放形状。
-
-
 <iframe src="/downloads/code/styling/Fill.html" style="width: 50vw;height:300px;"></iframe>
 
 
@@ -193,3 +195,43 @@ sidebar_position: 1
 </body>
 </html>
 ```
+
+## 常见问题
+
+### 渐变的坐标是相对什么的？
+
+相对**图形自身的坐标系**，不是舞台。
+
+所以 `fillLinearGradientStartPoint: { x: 0, y: 0 }` 指的是图形的原点，
+对 `Konva.Rect` 是左上角，对 `Konva.Circle` 是圆心。
+
+这意味着图形移动时渐变跟着走，不需要重新设置——这通常是想要的。
+但如果你希望渐变固定在画布上（比如整体的背景光效），就得在移动时手动更新坐标。
+
+### 同时设了 fill 和 fillPattern，哪个生效？
+
+由 `fillPriority` 决定，取值是 `'color'`、`'pattern'`、`'linear-gradient'`、
+`'radial-gradient'`。不显式设置时 Konva 按已设置的属性自动推断。
+
+这个属性的实际用途是**切换**：预先把纯色和渐变都配好，
+改一个 `fillPriority` 就能切换外观，不用来回设置和清空。
+
+### 图案填充为什么不显示？
+
+和 `Konva.Image` 一样，图片必须先加载完成。在 `onload` 之后再设置
+`fillPatternImage`，或者设置完再重绘一次。
+
+另一个常见问题是图案的重复方式——默认 `fillPatternRepeat` 是 `'repeat'`，
+图片小于图形时会平铺。想要拉伸填满得自己算 `fillPatternScale`。
+
+## 与其他方案的取舍
+
+三种填充的开销差别不小。
+
+**纯色**最快，就是一次 `fillStyle` 赋值。能用纯色就别用别的。
+
+**渐变**每次绘制都要创建渐变对象并采样，比纯色贵一个数量级。
+静态图形影响不大，但如果它在动画里每帧重绘，代价就明显了——这种情况下考虑把图形[缓存](/docs/performance/shape-caching)成位图。
+
+**图案**要额外做纹理采样，还依赖图片加载。它的优势是能表达纯色和渐变做不到的纹理，
+但如果只是想要一个重复的几何图案，用一个自定义图形手工画往往更快也更可控。
