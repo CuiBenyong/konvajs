@@ -40,8 +40,8 @@
       });
       layer.add(original);
 
-      // 右边：CSS 原生滤镜。注意这里没有调用 cache()——
-      // CSS 滤镜由浏览器实现，不需要先把节点缓存成位图。
+      // 右边：CSS 滤镜字符串。和函数式滤镜一样必须先 cache()——
+      // 漏掉不会报错，只是画面毫无变化。
       var filtered = new Konva.Image({
         x: 230,
         y: 20,
@@ -50,6 +50,7 @@
         height: 180,
         filters: ['blur(6px)', 'saturate(1.8)']
       });
+      filtered.cache();
       layer.add(filtered);
 
       var label = new Konva.Text({
