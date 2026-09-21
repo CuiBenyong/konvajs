@@ -169,7 +169,9 @@ for (const demo of demos) {
 await browser.close()
 server.close()
 
-const report = { generatedAt: new Date().toISOString(), total: results.length, results }
+// 不记录生成时间：它没有任何消费方，却会让每次 npm run check 都弄脏工作区，
+// 在 PR 里产生一行无意义的 diff。文件何时更新由 git 提交记录回答。
+const report = { total: results.length, results }
 await fs.writeFile(OUT, JSON.stringify(report, null, 2) + '\n')
 
 const failed = results.filter((r) => !r.ok)
