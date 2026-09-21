@@ -1,5 +1,5 @@
 {
-  "total": 130,
+  "total": 137,
   "results": [
     {
       "file": "downloads/code/animations/Moving.html",
@@ -254,6 +254,13 @@
       "painted": true
     },
     {
+      "file": "downloads/code/filters/Brightness.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
       "file": "downloads/code/filters/CSS_Filters.html",
       "ok": true,
       "errors": [],
@@ -261,7 +268,49 @@
       "painted": true
     },
     {
+      "file": "downloads/code/filters/Contrast.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/filters/Custom_Filter.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/filters/Emboss.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/filters/Enhance.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
       "file": "downloads/code/filters/Grayscale.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/filters/HSL.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/filters/HSV.html",
       "ok": true,
       "errors": [],
       "canvasCount": 1,

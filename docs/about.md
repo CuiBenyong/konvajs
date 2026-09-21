@@ -40,7 +40,7 @@ CommonJS 环境里必须改成 `require('konva').default`，
 导致同一个节点在更高的 `pixelRatio` 下看起来模糊程度不同；
 现在统一按**节点坐标**算。配套地，**自定义滤镜函数的签名变成了
 `(imageData, pixelRatio)`**——第二个参数是新增的，
-用它把节点长度换算成像素。
+用它把节点长度换算成像素，见[自定义滤镜](/docs/filters/custom-filter)。
 另外闭合路径（`z` 命令）的 `getLength()` 现在包含闭合边，与 SVG 一致。
 
 ## 常见问题

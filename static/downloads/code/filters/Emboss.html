@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Emboss Filter Demo</title>
+  <style>
+    body { margin: 0; padding: 0; overflow: hidden; background-color: #F0F0F0;
+           font: 13px/1.7 system-ui, -apple-system, sans-serif; }
+    #controls { padding: 6px 12px; }
+    #controls label { display: inline-block; margin-right: 14px; }
+    output { font-variant-numeric: tabular-nums; color: #555; }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <div id="controls"><label>embossStrength <input type="range" id="s" min="0" max="1" step="0.05" value="0.8"><output id="sout">0.8</output></label><label>embossWhiteLevel <input type="range" id="w" min="0" max="1" step="0.05" value="0.5"><output id="wout">0.5</output></label><label>embossDirection <select id="d"><option selected>top-left</option><option>top</option><option>top-right</option><option>right</option><option>bottom-right</option><option>bottom</option><option>bottom-left</option><option>left</option></select></label></div>
+  <script>
+    var stage = new Konva.Stage({ container: 'container', width: 300, height: 200 });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    Konva.Image.fromURL('/assets/lion.png', function (img) {
+      img.setAttrs({ x: 40, y: 10, draggable: true });
+      layer.add(img);
+      // 滤镜只作用于缓存画布，没有 cache() 完全不生效
+      img.cache();
+      img.filters([Konva.Filters.Emboss]);
+      img.embossStrength(0.8);
+      img.embossWhiteLevel(0.5);
+      img.embossDirection('top-left');
+      img.embossBlend(false);
+      layer.draw();
+      var s = document.getElementById('s');
+      s.addEventListener('input', function () {
+        img.embossStrength(parseFloat(s.value));
+        document.getElementById('sout').textContent = s.value;
+        layer.draw();
+      });
+      var w = document.getElementById('w');
+      w.addEventListener('input', function () {
+        img.embossWhiteLevel(parseFloat(w.value));
+        document.getElementById('wout').textContent = w.value;
+        layer.draw();
+      });
+      var d = document.getElementById('d');
+      d.addEventListener('change', function () {
+        img.embossDirection(d.value);
+        layer.draw();
+      });
+    });
+  </script>
+</body>
+</html>
