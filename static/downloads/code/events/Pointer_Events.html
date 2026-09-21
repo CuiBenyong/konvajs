@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Pointer Events Demo</title>
+  <style>
+    body { margin: 0; padding: 0; overflow: hidden; background-color: #F0F0F0;
+           font: 13px/1.6 system-ui, -apple-system, sans-serif; }
+    #log { padding: 6px 12px; height: 110px; overflow: auto;
+           font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #333; }
+    #log div { padding: 1px 0; }
+    .pointer { color: #4078c0; }
+    .mouse { color: #c06040; }
+    .touch { color: #3aa657; }
+    #hint { padding: 4px 12px 0; color: #777; }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <div id="hint">点一下方块，看一次交互派发了几个事件。</div>
+  <div id="log"></div>
+  <script>
+    var stage = new Konva.Stage({ container: 'container', width: 300, height: 110 });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    var rect = new Konva.Rect({
+      x: 90, y: 15, width: 120, height: 80,
+      fill: '#cfe3ff', stroke: '#4078c0', strokeWidth: 2, cornerRadius: 6,
+    });
+    layer.add(rect);
+    layer.add(new Konva.Text({
+      x: 90, y: 48, width: 120, align: 'center',
+      text: '点我', fontSize: 16, fill: '#24406b', listening: false,
+    }));
+    layer.draw();
+
+    var logEl = document.getElementById('log');
+    var n = 0;
+    function log(name, kind) {
+      var d = document.createElement('div');
+      d.className = kind;
+      d.textContent = (++n) + '. ' + name;
+      logEl.appendChild(d);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    // 同时监听三套事件，观察一次交互实际派发了哪些
+    ['pointerdown', 'pointerup', 'pointerclick'].forEach(function (e) {
+      rect.on(e, function () { log(e, 'pointer'); });
+    });
+    ['mousedown', 'mouseup', 'click'].forEach(function (e) {
+      rect.on(e, function () { log(e, 'mouse'); });
+    });
+    ['touchstart', 'touchend', 'tap'].forEach(function (e) {
+      rect.on(e, function () { log(e, 'touch'); });
+    });
+
+    // 供自动化检查读取
+    window.__events = [];
+    ['pointerdown', 'pointerup', 'pointerclick', 'mousedown', 'mouseup', 'click',
+     'touchstart', 'touchend', 'tap'].forEach(function (e) {
+      rect.on(e, function () { window.__events.push(e); });
+    });
+  </script>
+</body>
+</html>

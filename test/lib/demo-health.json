@@ -1,5 +1,5 @@
 {
-  "total": 144,
+  "total": 146,
   "results": [
     {
       "file": "downloads/code/animations/Moving.html",
@@ -801,6 +801,13 @@
       "painted": true
     },
     {
+      "file": "downloads/code/shapes/Group.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
       "file": "downloads/code/shapes/Image.html",
       "ok": true,
       "errors": [],
@@ -809,6 +816,13 @@
     },
     {
       "file": "downloads/code/shapes/Label.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/shapes/Line.html",
       "ok": true,
       "errors": [],
       "canvasCount": 1,

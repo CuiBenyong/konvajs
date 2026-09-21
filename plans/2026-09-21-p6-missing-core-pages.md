@@ -116,7 +116,8 @@ sitemap 有 113 条 loc 但只有 111 条 lastmod。lastmod 取自 git 提交记
 | F21 | `toDataURL` / `toImage` / `toCanvas` / `toBlob` 的 `pixelRatio` **默认是 1，不是设备像素比**。这意味着在 2x 屏上导出的图默认比屏幕上看到的糊一半 | `Node.js:1715,1748,1776,1812,1852` | `data-and-serialization/high-quality-export.md` |
 | F22 | `cache()` 的 `pixelRatio` 默认则是 `Konva.pixelRatio`（设备像素比）——**与导出的默认值不一致**，这是两处最容易混淆的地方 | `Node.js:240` | `data-and-serialization/high-quality-export.md` |
 | F23 | `Konva.pointerEventsEnabled` 默认 `true`。指针事件名：`pointerdown`/`pointermove`/`pointerup`/`pointercancel`/`pointerclick`/`pointerdblclick`/`pointerover`/`pointerout`/`pointerenter`/`pointerleave` | `Global.js:40`、`Stage.js:10,23-41` | `events/pointer-events.md` |
-| F24 | Konva 内部把一次指针交互按 `pointerType` **同时派发两套事件**：鼠标时 `pointerdown` → 也触发 `mousedown`，触摸时 `pointerdown` → 也触发 `touchstart`。同时监听 `pointerdown` 和 `mousedown` 会**收到两次** | `Stage.js:32-50` | `events/pointer-events.md`、`events/mobile-tap-and-click.md` |
+| F24 | Konva 内部把一次指针交互按 `pointerType` **同时派发两套事件**。实测顺序——鼠标：`pointerdown → mousedown → pointerup → pointerclick → mouseup → click`；触摸：`pointerdown → touchstart → pointerup → pointerclick → touchend → tap`。同时监听 `pointerdown` 和 `mousedown` 会**收到两次**。**但 `click` 与 `tap` 不会同时触发**——`pointerclick` 按 `pointerType` 只映射成其中一个 | `Stage.js:32-53`，实测 | `events/pointer-events.md` |
+| F24b | **执行时推翻的计划假设。** 原计划断言「同时监听 `click` 和 `tap` 在移动端会执行两次」，**这是错的**。Konva 在 `_pointerdown` 里对触摸事件默认调用 `evt.preventDefault()`（`Stage.js:574-577`，节点的 `preventDefault` 属性默认 `true`，见 `Node.js:2826`），浏览器的合成点击被抑制，所以 `on('click tap')` 只会触发一次。双重触发只在 `shape.preventDefault(false)` 时才会回来——而为了让画布区域能滚动页面，关掉它是常见需求 | `Stage.js:574-577`、`Node.js:2826` | `events/mobile-tap-and-click.md` |
 | F25 | `Konva.dragDistance` 默认 `3`（px）；`Konva.hitOnDragEnabled` 默认 `false`——拖拽过程中不做命中检测 | `Global.js:61,107` | `events/mobile-tap-and-click.md` |
 
 ---
