@@ -7,16 +7,19 @@ sidebar_position: 14
 
 有关属性和方法的完整列表,请参阅<a href="https://konvajs.org/api/Konva.Ring.html" target="_blank">Konva.Ring</a>文档
 
-<iframe src="/downloads/code/shapes/Star.html" style="width: 50vw;height:300px;"></iframe>
+<iframe src="/downloads/code/shapes/Ring.html" style="width: 50vw;height:300px;"></iframe>
 
 
 ```html
+/**
+ * shapes/Ring.html
+ */
 <!DOCTYPE html>
 <html>
 <head>
   <script src="https://unpkg.com/konva@9.3.6/konva.min.js"></script>
   <meta charset="utf-8">
-  <title>Konva Star Demo</title>
+  <title>Konva Ring Demo</title>
   <style>
     body {
       margin: 0;
@@ -29,18 +32,20 @@ sidebar_position: 14
 <body>
   <div id="container"></div>
   <script>
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+
     var stage = new Konva.Stage({
-      container: 'container',
-      width: 300,
-      height: 300
+        container: 'container',
+        width: width,
+        height: height
     });
 
     var layer = new Konva.Layer();
 
-    var star = new Konva.Star({
+    var ring = new Konva.Ring({
       x: stage.getWidth() / 2,
       y: stage.getHeight() / 2,
-      numPoints: 6,
       innerRadius: 40,
       outerRadius: 70,
       fill: 'yellow',
@@ -49,7 +54,7 @@ sidebar_position: 14
     });
 
     // add the shape to the layer
-    layer.add(star);
+    layer.add(ring);
 
     // add the layer to the stage
     stage.add(layer);

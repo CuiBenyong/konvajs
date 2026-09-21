@@ -42,6 +42,7 @@ const checks = [
   require('./checks/build-sanity'),
   require('./checks/deps'),
   require('./checks/metadata'),
+  require('./checks/demos'),
   require('./checks/redirects'),
   require('./checks/robots'),
   require('./checks/ads'),
