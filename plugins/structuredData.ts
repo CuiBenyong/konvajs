@@ -65,6 +65,38 @@ function extractDescription(html: string): string {
   return m ? decodeEntities(m[1]).trim() : ''
 }
 
+/**
+ * 从渲染后的 HTML 中提取「常见问题」小节下的问答对。
+ *
+ * 从构建产物读而非从 .md 读，理由与本文件顶部一致：产物里的结构是最终结果，
+ * 不需要复刻 Markdown 到 HTML 的转换规则。
+ *
+ * 结构约定见 test/checks/originality.js：`## 常见问题` 下用 `### 问句？` 提问，
+ * 随后的段落是答案。渲染后即 h2「常见问题」之后、下一个 h2 之前的若干 h3 与其后的 p。
+ */
+function extractFaq(html: string): { question: string; answer: string }[] {
+  const start = /<h2[^>]*>(?:(?!<\/h2>)[\s\S])*?常见问题[\s\S]*?<\/h2>/i.exec(html)
+  if (!start) return []
+  const rest = html.slice(start.index + start[0].length)
+  const end = /<h2[^>]*>/i.exec(rest)
+  const section = end ? rest.slice(0, end.index) : rest
+
+  const out: { question: string; answer: string }[] = []
+  for (const chunk of section.split(/<h3[^>]*>/i).slice(1)) {
+    const close = chunk.indexOf('</h3>')
+    if (close === -1) continue
+    // h3 里含 Docusaurus 自动插入的锚点链接，要连标签一起剥掉
+    const question = decodeEntities(chunk.slice(0, close).replace(/<[^>]+>/g, '')).trim()
+    const body = chunk.slice(close + '</h3>'.length)
+    const answer = [...body.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi)]
+      .map((m) => decodeEntities(m[1].replace(/<[^>]+>/g, '')).replace(/\s+/g, ' ').trim())
+      .filter(Boolean)
+      .join(' ')
+    if (question && answer) out.push({ question, answer })
+  }
+  return out
+}
+
 /** 移除已有的 BreadcrumbList JSON-LD，避免同页出现两份互相矛盾的层级声明。 */
 function removeExistingBreadcrumb(html: string): string {
   return html.replace(
@@ -153,9 +185,24 @@ export default function structuredDataPlugin(): Plugin {
           })),
         }
 
+        const faq = extractFaq(original)
+        const faqLd =
+          faq.length > 0
+            ? {
+                '@context': 'https://schema.org',
+                '@type': 'FAQPage',
+                mainEntity: faq.map((f) => ({
+                  '@type': 'Question',
+                  name: f.question,
+                  acceptedAnswer: { '@type': 'Answer', text: f.answer },
+                })),
+              }
+            : null
+
         const injected =
           `<script type="application/ld+json">${JSON.stringify(techArticle)}</script>` +
-          `<script type="application/ld+json">${JSON.stringify(breadcrumb)}</script>`
+          `<script type="application/ld+json">${JSON.stringify(breadcrumb)}</script>` +
+          (faqLd ? `<script type="application/ld+json">${JSON.stringify(faqLd)}</script>` : '')
 
         const html = removeExistingBreadcrumb(original).replace('</head>', `${injected}</head>`)
         await fs.writeFile(file, html)

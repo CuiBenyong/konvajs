@@ -26,7 +26,8 @@ module.exports = {
 
     for (const file of ctx.docHtml().filter((f) => ctx.rel(f).startsWith('docs/'))) {
       const r = ctx.rel(file);
-      const blocks = extractJsonLd(ctx.read(r));
+      const html = ctx.read(r);
+      const blocks = extractJsonLd(html);
 
       if (blocks.some((b) => b.__invalid)) {
         problems.push(`${r} 含无法解析的 JSON-LD`);
@@ -59,6 +60,29 @@ module.exports = {
         // 这些页面是同一篇内容。
         if (article.url && !article.url.startsWith('https://')) {
           problems.push(`${r} 的 TechArticle.url 不是绝对地址：${article.url}`);
+        }
+      }
+
+      // 含「常见问题」小节的页面必须产出 FAQPage。判断依据是渲染后的 HTML
+      // 里有对应的 h2，而不是去读 .md——检查器只看构建产物，与源码组织解耦。
+      const hasFaqSection = /<h2[^>]*>[\s\S]{0,80}?常见问题/.test(html);
+      const faqCount = types.filter((t) => t === 'FAQPage').length;
+      if (hasFaqSection && faqCount === 0) {
+        problems.push(`${r} 有「常见问题」小节但没有 FAQPage 结构化数据`);
+      }
+      if (faqCount > 1) {
+        problems.push(`${r} 有 ${faqCount} 个 FAQPage，应当有且仅有一个`);
+      }
+      const faqLd = blocks.find((b) => b['@type'] === 'FAQPage');
+      if (faqLd) {
+        const items = faqLd.mainEntity || [];
+        if (items.length === 0) problems.push(`${r} 的 FAQPage 没有问答条目`);
+        for (const it of items) {
+          if (it['@type'] !== 'Question') problems.push(`${r} 的 FAQPage 条目类型不是 Question`);
+          if (!it.name) problems.push(`${r} 的 FAQPage 有条目缺 name`);
+          if (!it.acceptedAnswer || !it.acceptedAnswer.text) {
+            problems.push(`${r} 的 FAQPage 有条目缺答案正文`);
+          }
         }
       }
 
