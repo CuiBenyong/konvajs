@@ -85,11 +85,20 @@ function extractFaq(html: string): { question: string; answer: string }[] {
   for (const chunk of section.split(/<h3[^>]*>/i).slice(1)) {
     const close = chunk.indexOf('</h3>')
     if (close === -1) continue
-    // h3 里含 Docusaurus 自动插入的锚点链接，要连标签一起剥掉
-    const question = decodeEntities(chunk.slice(0, close).replace(/<[^>]+>/g, '')).trim()
+    // h3 里含 Docusaurus 自动插入的锚点链接 <a class="hash-link">​</a>，
+    // 剥掉标签后它的零宽空格（U+200B）会留在文本里，必须一并清除——
+    // 否则每个问句末尾都跟着一个不可见字符进入结构化数据。
+    const question = decodeEntities(chunk.slice(0, close).replace(/<[^>]+>/g, ''))
+      .replace(/[\u200B-\u200D\uFEFF]/g, '')
+      .trim()
     const body = chunk.slice(close + '</h3>'.length)
     const answer = [...body.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi)]
-      .map((m) => decodeEntities(m[1].replace(/<[^>]+>/g, '')).replace(/\s+/g, ' ').trim())
+      .map((m) =>
+        decodeEntities(m[1].replace(/<[^>]+>/g, ''))
+          .replace(/[\u200B-\u200D\uFEFF]/g, '')
+          .replace(/\s+/g, ' ')
+          .trim()
+      )
       .filter(Boolean)
       .join(' ')
     if (question && answer) out.push({ question, answer })
