@@ -87,7 +87,7 @@ Konva 官方站 `konvajs.org/zh-Hans/` 已上线**完整官方简体中文文档
 ### 目标
 
 1. 构建产物包含完整正文 HTML，使搜索引擎与不执行 JS 的 AI 爬虫可直接抓取。
-2. 内容对齐 Konva 10.5.0 与官方 276 页结构。
+2. 内容对齐 Konva 10.x（CDN 引用采用浮动大版本 `konva@10`，见 §4.2.1）与官方 276 页结构。
 3. SPA 路由切换时每个页面重新加载一次广告，且不违反 AdSense 版位政策。
 4. 正文内接入广告位，复用既有 AdSense 广告单元。
 5. 建立 GEO 基建（`llms.txt`、AI 爬虫放行、结构化数据）。
@@ -161,7 +161,21 @@ konvajs/
 | CommonJS → ES Modules（10.0.0） | 所有 `require('konva')` 示例失效 | 改为 `import Konva from 'konva'`；CJS 场景注明 `require('konva').default` |
 | Node.js 端需显式引入画布后端 | `nodejs` 章节示例失效 | 注明须自行安装并引入 `canvas` 或 `skia-canvas` |
 | 文本定位默认值改为对齐 DOM/CSS 标准 | 像素级定位的示例可能偏移 | 逐个复核文本类示例的截图与坐标 |
-| CDN 版本号 | 全站引用 `konva@9.3.6` | 统一改为 `konva@10.5.0` |
+| CDN 版本号 | 全站引用 `konva@9.3.6`（202 处）与 `konva@4.0.18`（6 处） | 统一改为 `konva@10`，见 §4.2.1 |
+
+#### 4.2.1 CDN 版本采用浮动大版本而非精确版本
+
+站内共 208 处硬编码 Konva 版本。Konva 的发布节奏很密——2026 年 8 月下旬至
+9 月中旬一个月内连发 10.3.2、10.3.3、10.4.0、10.5.0、10.6.0 五个版本。
+钉死精确版本意味着每隔几周就要批量替换两百多处并重验全部演示，否则文档很快
+又显得陈旧；本次改造的起因之一，正是上一轮钉死的 9.3.6 长期无人跟进。
+
+因此统一写成 `https://unpkg.com/konva@10/konva.min.js`，由 unpkg 解析到 10.x
+的最新版本。Konva 遵循语义化版本，10.x 内不会有破坏性变更。
+
+**代价与对冲**：若某次 10.x 发布引入回归，演示会跟着坏，而我们不会立刻知道。
+对冲手段是演示健康检查（见 §9）——用真实浏览器加载全部演示页，捕获控制台错误
+与空画布，纳入 `npm run check`。**没有这道检查就不应采用浮动版本，两者是一套。**
 
 **需补充的新特性**：CSS 原生滤镜 `node.filters(['blur(10px)'])`、逐字渲染 `charRenderFunc`、`RegularPolygon` 的 `cornerRadius`、`destroy` 事件（10.4.0）、字素感知文本排版（emoji/连字，10.4.0）。
 
@@ -171,7 +185,7 @@ konvajs/
 
 | 批次 | 内容 | 页数 | 验收 |
 |---|---|---|---|
-| C1 | 现有 93 页章节内容迁移至 Docusaurus + 对齐 10.5.0 + 译文校对 | 93 | 全站可构建，97 条 301 命中，HTML 含正文 |
+| C1 | 现有 93 页章节内容迁移至 Docusaurus + 对齐 Konva 10.x + 译文校对 | 93 | 全站可构建，97 条 301 命中，HTML 含正文 |
 | C2 | `select_and_transform` 13 + 根级 8 + `guides` 2 + `nodejs` 1 | 24 | Transformer 章节可用；本站 4 个根级页归并入官方 8 页 |
 | C3 | 既有 12 个章节补齐至官方页数（filters +13、shapes +2、events +2、data_and_serialization +2、styling +1、animations +1、groups_and_layers +1，performance 多出 1 页与官方对账归并） | 21 | 12 个章节页数与官方一致，合计 114 |
 | C4 | `react` 19 + `vue` 13 | 32 | Sandpack 演示可运行 |
@@ -463,6 +477,9 @@ typescript ~5.9.3         Node >= 20
 | `check-originality.js` | 每页含 4.4 规定的原创增量小节之一 |
 | `check-sitemap.js` | 条目数与文档页数一致；全部含 `lastmod` |
 | `check-llms.js` | `llms.txt` 非空且条目数与页面数一致 |
+| `check-demos.js` | 每个 iframe 指向的演示文件存在，且页面名与演示名一致 |
+| `check-konva-version.js` | 全站无 `konva@9` / `konva@4` 残留，统一为 `konva@10` |
+| `check-demo-health.js` | 真实浏览器加载全部演示页，无控制台错误、画布非空。这是采用浮动大版本的前提，见 §4.2.1 |
 | `npm audit` | 0 高危 0 中危 |
 
 ## 10. 风险
