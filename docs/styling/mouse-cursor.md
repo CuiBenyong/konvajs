@@ -15,7 +15,7 @@ sidebar_position: 7
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="https://unpkg.com/konva@4.0.18/konva.min.js"></script>
+    <script src="https://unpkg.com/konva@10/konva.min.js"></script>
     <meta charset="utf-8" />
     <title>Konva Mouse Cursor Styles Demo</title>
     <style>

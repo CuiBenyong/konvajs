@@ -43,6 +43,7 @@ const checks = [
   require('./checks/deps'),
   require('./checks/metadata'),
   require('./checks/demos'),
+  require('./checks/konva-version'),
   require('./checks/redirects'),
   require('./checks/robots'),
   require('./checks/ads'),

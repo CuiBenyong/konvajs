@@ -23,7 +23,7 @@ sidebar_position: 15
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="https://unpkg.com/konva@4.0.18/konva.min.js"></script>
+    <script src="https://unpkg.com/konva@10/konva.min.js"></script>
     <meta charset="utf-8" />
     <title>Canvas Keyboard events Demo</title>
     <style>

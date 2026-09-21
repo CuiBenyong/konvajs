@@ -13,7 +13,7 @@ sidebar_position: 11
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="https://unpkg.com/konva@9.3.6/konva.min.js"></script>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
   <meta charset="utf-8">
   <title>Konva Text Demo</title>
   <style>

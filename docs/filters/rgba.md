@@ -20,7 +20,7 @@ For all available filters go to<a href="https://konvajs.org/api/Konva.Filters.ht
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="https://unpkg.com/konva@9.3.6/konva.min.js"></script>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
   <meta charset="utf-8">
   <title>Konva RGBA Image Demo</title>
   <style>

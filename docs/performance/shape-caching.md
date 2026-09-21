@@ -20,7 +20,7 @@ sidebar_position: 4
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="https://unpkg.com/konva@9.3.6/konva.min.js"></script>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
   <meta charset="utf-8">
   <title>Konva Shape Caching Demo</title>
   <style>
