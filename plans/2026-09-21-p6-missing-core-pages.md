@@ -42,6 +42,33 @@
 - 演示里的图片一律用**站内绝对路径** `/assets/<file>`，不得引外部图床——外链图片会让 `demo-health` 受网络波动影响，且国内可达性不可控。
 - 所有内部链接必须指向**已存在**的页面。`onBrokenLinks: 'throw'`，指向本计划后续 Task 才创建的页面会导致构建失败。**若必须提前引用，先写成纯文字，在创建目标页的 Task 里再补链接。**
 
+## 执行顺序的一个硬约束（Task 1 实测发现）
+
+**新增页必须先 `git commit`，再 `npm run build && npm run verify`。**
+
+`canonical 与 sitemap` 这项检查会比对 sitemap 的 `loc` 数与 `lastmod` 数，
+而 `lastmod` 由 Docusaurus 从 **`git log`** 读取。未提交的新页拿不到提交时间，
+sitemap 里就只有 `loc` 没有 `lastmod`，该项必然 FAIL：
+
+```
+sitemap 有 113 条 loc 但只有 111 条 lastmod。lastmod 取自 git 提交记录，
+缺失多半是有页面尚未 git add
+```
+
+**`git add` 不够，必须真正 commit** —— `git log` 看不到暂存区。
+
+所以每个 Task 的收尾顺序是：
+
+1. `npm run build` —— 先确认能构建（`onBrokenLinks: 'throw'` 会在这里拦住坏链接）
+2. `npm run demo-health` —— 有新演示时
+3. `git commit`
+4. `npm run build && npm run verify` —— 提交后重跑，这次 sitemap 才会完整
+
+下面各 Task 的步骤按「构建 → 校验 → 提交」写，**实际执行时按上面四步走**。
+若某个 Task 提交后 verify 才发现问题，用 `git commit --amend` 修正，不要留一个红的提交。
+
+---
+
 ## 侧边栏位置分配（全局，Task 1 落地）
 
 根级页用 `sidebar_position`，章节用 `_category_.json` 的 `position`，两者在同一个序列里排序，**不得冲突**：
