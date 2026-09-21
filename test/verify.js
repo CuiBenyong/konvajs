@@ -47,6 +47,7 @@ const checks = [
   require('./checks/ads'),
   require('./checks/ad-placement'),
   require('./checks/seo'),
+  require('./checks/jsonld'),
 ];
 
 let failed = 0;

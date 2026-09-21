@@ -2,8 +2,35 @@ import { themes as prismThemes } from 'prism-react-renderer'
 import type { Config } from '@docusaurus/types'
 import type * as Preset from '@docusaurus/preset-classic'
 import { SITE_URL, SITE_DESCRIPTION } from './siteMeta'
+import structuredDataPlugin from './plugins/structuredData'
 
 // 这段代码运行在 Node.js 环境，不要在这里使用浏览器 API
+
+/**
+ * 站点级结构化数据。
+ *
+ * 通过 headTags 注入，因此每个页面都会带上一份——这是站点级实体的常规做法，
+ * 它描述的是「这个站点是什么」，与页面无关，重复出现不构成矛盾声明。
+ *
+ * 页面级的 TechArticle 与 BreadcrumbList 是另一回事，由
+ * plugins/structuredData.ts 在 postBuild 阶段逐页写入，且每页各只有一份，
+ * 原因见该文件顶部注释。
+ */
+const siteStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Konva.js 中文文档',
+  alternateName: 'konvajs-zh',
+  url: SITE_URL,
+  inLanguage: 'zh-Hans',
+  description: SITE_DESCRIPTION,
+  about: {
+    '@type': 'SoftwareSourceCode',
+    name: 'Konva',
+    codeRepository: 'https://github.com/konvajs/konva',
+    programmingLanguage: 'JavaScript',
+  },
+}
 
 const config: Config = {
   title: 'Konva.js 中文文档',
@@ -67,6 +94,8 @@ const config: Config = {
     ],
   ],
 
+  plugins: [structuredDataPlugin],
+
   headTags: [
     /**
      * 提前建立到广告服务器的连接。
@@ -85,6 +114,11 @@ const config: Config = {
     {
       tagName: 'link',
       attributes: { rel: 'dns-prefetch', href: 'https://googleads.g.doubleclick.net' },
+    },
+    {
+      tagName: 'script',
+      attributes: { type: 'application/ld+json' },
+      innerHTML: JSON.stringify(siteStructuredData),
     },
   ],
 
