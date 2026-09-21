@@ -177,7 +177,7 @@ konvajs/
 对冲手段是演示健康检查（见 §9）——用真实浏览器加载全部演示页，捕获控制台错误
 与空画布，纳入 `npm run check`。**没有这道检查就不应采用浮动版本，两者是一套。**
 
-**需补充的新特性**：CSS 原生滤镜 `node.filters(['blur(10px)'])`、逐字渲染 `charRenderFunc`、`RegularPolygon` 的 `cornerRadius`、`destroy` 事件（10.4.0）、字素感知文本排版（emoji/连字，10.4.0）。
+**需补充的新特性**：CSS 滤镜字符串 `node.filters(['blur(10px)'])`（**仍需 `cache()`**，实测确认；全为字符串时走浏览器原生实现）、逐字渲染 `charRenderFunc`、`RegularPolygon` 的 `cornerRadius`、`destroy` 事件（10.4.0）、字素感知文本排版（emoji/连字，10.4.0）。
 
 ### 4.3 分批计划
 
@@ -446,6 +446,12 @@ grep -q '矩形' build/docs/shapes/rect/index.html
 
 保留这一行为而非用 `slug` 强制改回：该页本就是拖放章节的入门页，
 `/docs/drag-and-drop` 是更准确也更简短的地址。上表该行已按实际路由更新。
+
+### 7.2.2 P2 新增页面
+
+`/docs/filters/css-filters` 为 P2 新增，没有对应的旧 URL，不进 301 映射表。
+§7.2 的 96 条对应的是迁移前线上已被收录的页面，该集合不会再增长；
+后续新增页面只进 sitemap 与 llms.txt，不进重定向表。
 
 ### 7.3 同时修正
 

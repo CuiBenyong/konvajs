@@ -6,10 +6,13 @@
 
 ```bash
 npm install
-npm start          # 开发服务器
-npm run build      # 生产构建，输出到 build/
-npm run serve      # 本地预览构建产物
+npm start           # 开发服务器
+npm run build       # 生产构建，输出到 build/
+npm run serve       # 本地预览构建产物
+npm run demo-health # 用真实 Chrome 跑一遍全部演示页
 ```
+
+`demo-health` 用 `playwright-core` 驱动本机已安装的 Chrome，不下载 Chromium。
 
 要求 Node ≥ 20。
 
@@ -39,6 +42,9 @@ npm run verify     # 只跑检查器（需先 build）
 | `jsonld` | TechArticle 与 BreadcrumbList 各有且仅有一个，面包屑至少三级 |
 | `llms` | llms.txt 收录完整、绝对地址、带摘要；llms-full.txt 正文非空 |
 | `analytics` | 凭据已配置却未生效则报错；未配置只提示 |
+| `demos` | iframe 指向的演示文件存在，且页面名与演示名一致 |
+| `konva-version` | 全站无旧版本残留，统一为浮动大版本 `konva@10` |
+| `demo-health` | 真实 Chrome 加载全部演示，无控制台错误且画布非空 |
 
 ## 需要配置的凭据
 
@@ -55,6 +61,7 @@ npm run verify     # 只跑检查器（需先 build）
 - **`static/ads.txt`**：内容需与 AdSense 后台一致
 - **`src/components/Ad/` 下不得引入 `setInterval` / `setTimeout`**：定时刷新广告违反 AdSense 版位政策，可能导致账号被限制投放。换页时的广告重建由用户点击导航触发，属用户主动行为，与政策禁止的自动刷新是两回事
 - **`static/_redirects` 的 96 条 301**：对应迁移前线上已被收录的 URL，删除会直接丢失这些页面累积的搜索权重
+- **CDN 版本一律写 `konva@10`**：不要改回精确版本。理由与代价见规格 §4.2.1——浮动版本与演示健康检查是一套，钉死版本会让健康检查失去存在意义，而文档会再次陈旧
 
 ## 目录结构
 
