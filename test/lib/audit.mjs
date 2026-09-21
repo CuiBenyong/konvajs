@@ -23,6 +23,16 @@ import path from 'node:path'
 const ENDPOINT = 'https://registry.npmjs.org/-/npm/v1/security/advisories/bulk'
 const TIMEOUT_MS = 30000
 
+/**
+ * 重试次数。
+ *
+ * 实测该接口在国内网络下会间歇性连接失败（curl 同样复现，返回 HTTP 000），
+ * 而紧接着重试就能成功。一次抖动不应该让 CI 假失败；但全部尝试都失败时
+ * 仍然如实报错，绝不退化成「视为无漏洞」。
+ */
+const MAX_ATTEMPTS = 3
+const RETRY_DELAY_MS = 1500
+
 function fail(error) {
   process.stdout.write(JSON.stringify({ ok: false, error }))
   process.exit(0)
@@ -51,36 +61,52 @@ if (versions.size === 0) fail('package-lock.json 中没有找到任何依赖')
 
 const body = Object.fromEntries([...versions].map(([k, v]) => [k, [...v]]))
 
-const controller = new AbortController()
-const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
-try {
-  const res = await fetch(ENDPOINT, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(body),
-    signal: controller.signal,
-  })
-  clearTimeout(timer)
-  if (!res.ok) fail(`审计接口返回 HTTP ${res.status}`)
-
-  const data = await res.json()
-  const counts = { critical: 0, high: 0, moderate: 0, low: 0 }
-  const findings = []
-  for (const [name, advisories] of Object.entries(data)) {
-    for (const a of advisories) {
-      counts[a.severity] = (counts[a.severity] ?? 0) + 1
-      findings.push({
-        name,
-        severity: a.severity,
-        range: a.vulnerable_versions,
-        title: a.title,
-        url: a.url,
-      })
-    }
+async function queryOnce() {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
+  try {
+    const res = await fetch(ENDPOINT, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    })
+    if (!res.ok) throw new Error(`审计接口返回 HTTP ${res.status}`)
+    return await res.json()
+  } catch (e) {
+    throw e.name === 'AbortError' ? new Error(`审计接口 ${TIMEOUT_MS}ms 未响应`) : e
+  } finally {
+    clearTimeout(timer)
   }
-  process.stdout.write(JSON.stringify({ ok: true, counts, findings }))
-} catch (e) {
-  clearTimeout(timer)
-  fail(e.name === 'AbortError' ? `审计接口 ${TIMEOUT_MS}ms 未响应` : `审计请求失败：${e.message}`)
 }
+
+let data
+let lastError
+for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+  try {
+    data = await queryOnce()
+    break
+  } catch (e) {
+    lastError = e
+    if (attempt < MAX_ATTEMPTS) await sleep(RETRY_DELAY_MS * attempt)
+  }
+}
+if (!data) fail(`审计请求失败（已重试 ${MAX_ATTEMPTS} 次）：${lastError.message}`)
+
+const counts = { critical: 0, high: 0, moderate: 0, low: 0 }
+const findings = []
+for (const [name, advisories] of Object.entries(data)) {
+  for (const a of advisories) {
+    counts[a.severity] = (counts[a.severity] ?? 0) + 1
+    findings.push({
+      name,
+      severity: a.severity,
+      range: a.vulnerable_versions,
+      title: a.title,
+      url: a.url,
+    })
+  }
+}
+process.stdout.write(JSON.stringify({ ok: true, counts, findings }))

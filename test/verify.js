@@ -42,6 +42,7 @@ const checks = [
   require('./checks/build-sanity'),
   require('./checks/deps'),
   require('./checks/metadata'),
+  require('./checks/redirects'),
 ];
 
 let failed = 0;

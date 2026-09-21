@@ -1,1 +1,110 @@
-https://konvajs.netlify.app/* https://front-end-js.tops/:splat 301!
+# Netlify 重定向规则
+#
+# 页面级 301 见 specs/2026-09-18-konvajs-site-overhaul-design.md §7.2。
+# 映射表已与迁移前线上 sitemap.xml 逐条比对：97/97 命中，新 URL 无重复。
+# 其中 / → / 为恒等映射，写入会造成重定向循环，故不列出，实际 96 条。
+#
+# 本文件由 test/checks/redirects.js 校验：条数、状态码、源地址唯一性，
+# 以及每个目标在构建产物中确实存在。
+
+# 旧 Netlify 子域跳主域。
+# 原规则目标误写为 front-end-js.tops（多一个 s），此处修正。
+https://konvajs.netlify.app/*  https://front-end-js.top/:splat  301!
+
+# --- 96 条页面级 301 ---
+/guides                                            /docs/overview  301!
+/guides/animations/create_an_-animation            /docs/animations/create-an-animation  301!
+/guides/animations/moving                          /docs/animations/moving  301!
+/guides/animations/rotation                        /docs/animations/rotation  301!
+/guides/animations/scaling                         /docs/animations/scaling  301!
+/guides/animations/stop_-animation                 /docs/animations/stop-animation  301!
+/guides/clipping/clipping_-function                /docs/clipping/clipping-function  301!
+/guides/clipping/clipping_-regions                 /docs/clipping/clipping-regions  301!
+/guides/data_and_serialization/complex_-load       /docs/data-and-serialization/complex-load  301!
+/guides/data_and_serialization/serialize_a_-stage  /docs/data-and-serialization/serialize-a-stage  301!
+/guides/data_and_serialization/simple_-load        /docs/data-and-serialization/simple-load  301!
+/guides/data_and_serialization/stage_-data_-url    /docs/data-and-serialization/stage-data-url  301!
+/guides/drag_and_drop/complex_-drag_and_-drop      /docs/drag-and-drop/complex-drag-and-drop  301!
+/guides/drag_and_drop/drag_-events                 /docs/drag-and-drop/drag-events  301!
+/guides/drag_and_drop/drag_a_-group                /docs/drag-and-drop/drag-a-group  301!
+/guides/drag_and_drop/drag_a_-line                 /docs/drag-and-drop/drag-a-line  301!
+/guides/drag_and_drop/drag_a_-stage                /docs/drag-and-drop/drag-a-stage  301!
+/guides/drag_and_drop/drag_an_-image               /docs/drag-and-drop/drag-an-image  301!
+/guides/drag_and_drop/drag_and_-drop               /docs/drag-and-drop  301!
+/guides/drag_and_drop/drop_-events                 /docs/drag-and-drop/drop-events  301!
+/guides/drag_and_drop/simple_-drag_-bounds         /docs/drag-and-drop/simple-drag-bounds  301!
+/guides/events/binding_-events                     /docs/events/binding-events  301!
+/guides/events/cancel_-propagation                 /docs/events/cancel-propagation  301!
+/guides/events/custom_-hit_-region                 /docs/events/custom-hit-region  301!
+/guides/events/desktop_and_-mobile                 /docs/events/desktop-and-mobile  301!
+/guides/events/event_-delegation                   /docs/events/event-delegation  301!
+/guides/events/fire_-events                        /docs/events/fire-events  301!
+/guides/events/image_-events                       /docs/events/image-events  301!
+/guides/events/keyboard_-events                    /docs/events/keyboard-events  301!
+/guides/events/listen_for_-events                  /docs/events/listen-for-events  301!
+/guides/events/mobile_-events                      /docs/events/mobile-events  301!
+/guides/events/mobile_-scrolling                   /docs/events/mobile-scrolling  301!
+/guides/events/multi_-event                        /docs/events/multi-event  301!
+/guides/events/remove_-event                       /docs/events/remove-event  301!
+/guides/events/remove_by_-name                     /docs/events/remove-by-name  301!
+/guides/events/stage_-events                       /docs/events/stage-events  301!
+/guides/filters/blur                               /docs/filters/blur  301!
+/guides/filters/brighten                           /docs/filters/brighten  301!
+/guides/filters/grayscale                          /docs/filters/grayscale  301!
+/guides/filters/invert                             /docs/filters/invert  301!
+/guides/filters/kaleidoscope                       /docs/filters/kaleidoscope  301!
+/guides/filters/multiple_-filters                  /docs/filters/multiple-filters  301!
+/guides/filters/rgba                               /docs/filters/rgba  301!
+/guides/groups_and_layers/change_-containers       /docs/groups-and-layers/change-containers  301!
+/guides/groups_and_layers/groups                   /docs/groups-and-layers/groups  301!
+/guides/groups_and_layers/layering                 /docs/groups-and-layers/layering  301!
+/guides/performance/all_-performance_-tips         /docs/performance/all-performance-tips  301!
+/guides/performance/avoid_-memory_-leaks           /docs/performance/avoid-memory-leaks  301!
+/guides/performance/batch_-draw                    /docs/performance/batch-draw  301!
+/guides/performance/disable_-perfect_-draw         /docs/performance/disable-perfect-draw  301!
+/guides/performance/layer_-management              /docs/performance/layer-management  301!
+/guides/performance/listening_-false               /docs/performance/listening-false  301!
+/guides/performance/optimize_-animation            /docs/performance/optimize-animation  301!
+/guides/performance/optimize_-strokes              /docs/performance/optimize-strokes  301!
+/guides/performance/shape_-caching                 /docs/performance/shape-caching  301!
+/guides/performance/shape_-redraw                  /docs/performance/shape-redraw  301!
+/guides/selectors/select_by_-name                  /docs/selectors/select-by-name  301!
+/guides/selectors/select_by_-type                  /docs/selectors/select-by-type  301!
+/guides/selectors/select_by_id                     /docs/selectors/select-by-id  301!
+/guides/shapes/arc                                 /docs/shapes/arc  301!
+/guides/shapes/arrow                               /docs/shapes/arrow  301!
+/guides/shapes/circle                              /docs/shapes/circle  301!
+/guides/shapes/custom                              /docs/shapes/custom  301!
+/guides/shapes/ellipse                             /docs/shapes/ellipse  301!
+/guides/shapes/image                               /docs/shapes/image  301!
+/guides/shapes/label                               /docs/shapes/label  301!
+/guides/shapes/line_-_-blob                        /docs/shapes/line-blob  301!
+/guides/shapes/line_-_-polygon                     /docs/shapes/line-polygon  301!
+/guides/shapes/line_-_-simple_-line                /docs/shapes/line-simple-line  301!
+/guides/shapes/line_-_-spline                      /docs/shapes/line-spline  301!
+/guides/shapes/path                                /docs/shapes/path  301!
+/guides/shapes/rect                                /docs/shapes/rect  301!
+/guides/shapes/regular-polygon                     /docs/shapes/regular-polygon  301!
+/guides/shapes/ring                                /docs/shapes/ring  301!
+/guides/shapes/sprite                              /docs/shapes/sprite  301!
+/guides/shapes/star                                /docs/shapes/star  301!
+/guides/shapes/text                                /docs/shapes/text  301!
+/guides/shapes/text-path                           /docs/shapes/text-path  301!
+/guides/shapes/wedge                               /docs/shapes/wedge  301!
+/guides/styling/blend_-mode                        /docs/styling/blend-mode  301!
+/guides/styling/fill                               /docs/styling/fill  301!
+/guides/styling/hide_and_-show                     /docs/styling/hide-and-show  301!
+/guides/styling/line_-join                         /docs/styling/line-join  301!
+/guides/styling/mouse_-cursor                      /docs/styling/mouse-cursor  301!
+/guides/styling/opacity                            /docs/styling/opacity  301!
+/guides/styling/shadow                             /docs/styling/shadow  301!
+/guides/styling/stroke                             /docs/styling/stroke  301!
+/guides/tweens/all_-controls                       /docs/tweens/all-controls  301!
+/guides/tweens/all_-easings                        /docs/tweens/all-easings  301!
+/guides/tweens/common_-easings                     /docs/tweens/common-easings  301!
+/guides/tweens/complex_-tweening                   /docs/tweens/complex-tweening  301!
+/guides/tweens/finish_-event                       /docs/tweens/finish-event  301!
+/guides/tweens/linear_-easing                      /docs/tweens/linear-easing  301!
+/guides/tweens/tween_-filter                       /docs/tweens/tween-filter  301!
+/help                                              /docs/support  301!
+/start                                             /docs/intro  301!

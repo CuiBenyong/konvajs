@@ -340,7 +340,7 @@ grep -q '矩形' build/docs/shapes/rect/index.html
 | `/guides/drag_and_drop/drag_a_-line` | `/docs/drag-and-drop/drag-a-line` |
 | `/guides/drag_and_drop/drag_a_-stage` | `/docs/drag-and-drop/drag-a-stage` |
 | `/guides/drag_and_drop/drag_an_-image` | `/docs/drag-and-drop/drag-an-image` |
-| `/guides/drag_and_drop/drag_and_-drop` | `/docs/drag-and-drop/drag-and-drop` |
+| `/guides/drag_and_drop/drag_and_-drop` | `/docs/drag-and-drop` |
 | `/guides/drag_and_drop/drop_-events` | `/docs/drag-and-drop/drop-events` |
 | `/guides/drag_and_drop/simple_-drag_-bounds` | `/docs/drag-and-drop/simple-drag-bounds` |
 | `/guides/events/binding_-events` | `/docs/events/binding-events` |
@@ -418,6 +418,14 @@ grep -q '矩形' build/docs/shapes/rect/index.html
 | `/guides/tweens/tween_-filter` | `/docs/tweens/tween-filter` |
 | `/help` | `/docs/support` |
 | `/start` | `/docs/intro` |
+
+### 7.2.1 实施期发现的一处目标调整
+
+`drag_and_drop/Drag_and_Drop.md` 的文件名与其所在目录同名，Docusaurus 将其
+视为该目录的索引页，路由为 `/docs/drag-and-drop` 而非 `/docs/drag-and-drop/drag-and-drop`。
+
+保留这一行为而非用 `slug` 强制改回：该页本就是拖放章节的入门页，
+`/docs/drag-and-drop` 是更准确也更简短的地址。上表该行已按实际路由更新。
 
 ### 7.3 同时修正
 
