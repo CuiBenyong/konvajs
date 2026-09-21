@@ -1,10 +1,15 @@
 ---
-title: 'RGB滤镜'
+title: 'RGBA 叠色'
 description: '用 Konva.Filters.RGBA 调整图片的红、绿、蓝与透明度分量，实现整体调色或半透明叠色效果。'
 sidebar_position: 7
 ---
 
-RGBA 滤镜按通道调整颜色。它是在原像素上做加权混合，不是直接替换颜色。
+RGBA 滤镜把一种指定颜色按 `alpha` 线性混合到原图上，相当于盖一层半透明的纯色蒙版：
+`结果 = 目标色 × alpha + 原色 × (1 - alpha)`。原图的颜色按比例保留。
+
+要把整张图重染成单一色调、完全丢弃原有色彩，用的是
+[`RGB`](/docs/filters/rgb) 而不是这个——两者共用 `red` / `green` / `blue`
+三个属性，但算法完全不同。
 
 ## 用法
 
@@ -16,7 +21,6 @@ RGBA 滤镜按通道调整颜色。它是在原像素上做加权混合，不是
 
 说明：滑动控件以更改rgba值。 
 
-For all available filters go to<a href="https://konvajs.org/api/Konva.Filters.html" target="_blank">Filters Documentation</a>.
 <iframe src="/downloads/code/filters/RGBA.html" style="width: 50vw;height:300px;"></iframe>
 
 ```html

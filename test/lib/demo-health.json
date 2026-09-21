@@ -1,5 +1,5 @@
 {
-  "total": 137,
+  "total": 144,
   "results": [
     {
       "file": "downloads/code/animations/Moving.html",
@@ -331,6 +331,13 @@
       "painted": true
     },
     {
+      "file": "downloads/code/filters/Mask.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
       "file": "downloads/code/filters/Multiple_Filters.html",
       "ok": true,
       "errors": [],
@@ -338,7 +345,49 @@
       "painted": true
     },
     {
+      "file": "downloads/code/filters/Noise.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/filters/Pixelate.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/filters/RGB.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
       "file": "downloads/code/filters/RGBA.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/filters/Sepia.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/filters/Solarize.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/filters/Threshold.html",
       "ok": true,
       "errors": [],
       "canvasCount": 1,

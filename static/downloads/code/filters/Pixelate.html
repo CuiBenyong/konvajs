@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Pixelate Filter Demo</title>
+  <style>
+    body { margin: 0; padding: 0; overflow: hidden; background-color: #F0F0F0;
+           font: 13px/1.7 system-ui, -apple-system, sans-serif; }
+    #controls { padding: 6px 12px; }
+    #controls label { display: inline-block; margin-right: 14px; }
+    output { font-variant-numeric: tabular-nums; color: #555; }
+    #note { padding: 0 12px 6px; color: #777; }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <div id="controls"><label>pixelSize（节点坐标 px） <input type="range" id="p" min="2" max="32" step="1" value="10"><output id="po">10</output></label></div>
+  
+  <script>
+    var stage = new Konva.Stage({ container: 'container', width: 300, height: 200 });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+    Konva.Image.fromURL('/assets/lion.png', function (img) {
+      img.setAttrs({ x: 40, y: 10, draggable: true });
+      layer.add(img);
+      img.cache();
+      img.filters([Konva.Filters.Pixelate]);
+      img.pixelSize(10);
+      layer.draw();
+      var p=document.getElementById('p');
+      p.addEventListener('input',function(){
+        img.pixelSize(parseFloat(p.value));
+        document.getElementById('po').textContent=p.value;
+        layer.draw();
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Mask Filter Demo</title>
+  <style>
+    body { margin: 0; padding: 0; overflow: hidden; background-color: #F0F0F0;
+           font: 13px/1.7 system-ui, -apple-system, sans-serif; }
+    #controls { padding: 6px 12px; }
+    output { font-variant-numeric: tabular-nums; color: #555; }
+    #note { padding: 0 12px 6px; color: #777; }
+    /* 棋盘格背景，好让抠掉的部分看得出来是透明而不是白色 */
+    #container {
+      background-image:
+        linear-gradient(45deg, #ddd 25%, transparent 25%, transparent 75%, #ddd 75%),
+        linear-gradient(45deg, #ddd 25%, transparent 25%, transparent 75%, #ddd 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 8px 8px;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <div id="controls">
+    <label>threshold
+      <input type="range" id="t" min="1" max="120" step="1" value="10">
+      <output id="to">10</output>
+    </label>
+  </div>
+  <div id="note">Mask 采样图片<strong>四个角</strong>推断背景色。四角颜色必须彼此接近，
+    否则滤镜什么也不做。这里特意合成了一张纯色背景的「绿幕」图。</div>
+  <script>
+    var stage = new Konva.Stage({ container: 'container', width: 320, height: 190 });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    var imageObj = new Image();
+    imageObj.onload = function () {
+      // 合成一张四角同色的绿幕图：纯绿底 + 狮子
+      var off = document.createElement('canvas');
+      off.width = imageObj.width;
+      off.height = imageObj.height;
+      var oc = off.getContext('2d');
+      oc.fillStyle = '#22aa44';
+      oc.fillRect(0, 0, off.width, off.height);
+      oc.drawImage(imageObj, 0, 0);
+
+      layer.add(new Konva.Text({ x: 10, y: 2, text: '绿幕原图', fontSize: 12, fill: '#333' }));
+      layer.add(new Konva.Text({ x: 170, y: 2, text: 'Mask 抠掉背景', fontSize: 12, fill: '#333' }));
+
+      var before = new Konva.Image({ image: off, x: 10, y: 20, scaleX: 0.6, scaleY: 0.6 });
+      var after = new Konva.Image({ image: off, x: 170, y: 20, scaleX: 0.6, scaleY: 0.6 });
+      layer.add(before);
+      layer.add(after);
+
+      after.cache();
+      after.filters([Konva.Filters.Mask]);
+      after.threshold(10);
+      layer.draw();
+
+      var t = document.getElementById('t');
+      t.addEventListener('input', function () {
+        after.threshold(parseFloat(t.value));
+        document.getElementById('to').textContent = t.value;
+        layer.draw();
+      });
+    };
+    imageObj.src = '/assets/lion.png';
+  </script>
+</body>
+</html>
