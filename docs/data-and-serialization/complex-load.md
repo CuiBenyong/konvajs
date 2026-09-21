@@ -34,7 +34,7 @@ sidebar_position: 3
     /*
     * set functions
     */
-    stage.get('#blueRectangle').on('mouseover mouseout', function() {
+    stage.findOne('#blueRectangle').on('mouseover mouseout', function() {
         var stroke = this.stroke();
         this.stroke(stroke === 'black' ? 'red' : 'black');
         stage.draw();
@@ -44,7 +44,7 @@ sidebar_position: 3
     */
     var imageObj = new Image();
     imageObj.onload = function() {
-        stage.get('#yodaImage')[0].image(imageObj);
+        stage.findOne('#yodaImage').image(imageObj);
         stage.draw();
     };
     imageObj.src = '/assets/yoda.jpg';

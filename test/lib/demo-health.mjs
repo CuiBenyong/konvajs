@@ -28,6 +28,31 @@ const OUT = path.join(ROOT, 'test', 'lib', 'demo-health.json')
 const PORT = 3399
 const PAGE_TIMEOUT_MS = 20000
 
+/**
+ * 等待画布出现内容的轮询上限。
+ *
+ * 不能只等固定一小段时间：不少演示在脚本里异步加载图片，绘制发生在
+ * networkidle 判定之后。实测 Planets_Image_Map 与 Interactive_Building_Map
+ * 都因此被误判为「什么都没画」。
+ */
+const PAINT_POLL_MS = 6000
+const PAINT_POLL_INTERVAL_MS = 250
+
+/**
+ * 初始状态本就是空白画布的演示。
+ *
+ * Hide_and_Show 的图形以 visible: false 创建，要点按钮才显示——
+ * 空白正是它要演示的效果。检查器无从得知这种意图，只能显式登记。
+ * 这类页面仍然校验「无控制台错误」与「存在 canvas」。
+ */
+const INTENTIONALLY_BLANK = new Set([
+  // 图形以 visible: false 创建，点按钮才显示——空白正是它要演示的效果。
+  'downloads/code/styling/Hide_and_Show.html',
+  // 图像映射：建筑图是容器的 CSS 背景，画布上只有 opacity: 0 的热区，
+  // 鼠标悬停时才显形。画布本来就应该是空的。
+  'downloads/code/sandbox/Interactive_Building_Map.html',
+])
+
 /** 演示页会加载 /assets 下的图片，所以服务整个 static 目录而不只是演示目录。 */
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -44,6 +69,13 @@ const MIME = {
 function serveStatic() {
   return http.createServer(async (req, res) => {
     const urlPath = decodeURIComponent((req.url ?? '/').split('?')[0])
+    // 浏览器会自动请求 favicon。演示页都没有 favicon，404 会被记成控制台错误，
+    // 把无关的演示判成失败——实测 Moving.html 就因此间歇性失败。
+    // 这里直接回 204，从源头消除这条噪音。
+    if (urlPath === '/favicon.ico') {
+      res.writeHead(204).end()
+      return
+    }
     const filePath = path.join(STATIC_DIR, urlPath)
     // 防目录穿越
     if (!filePath.startsWith(STATIC_DIR)) {
@@ -94,9 +126,8 @@ for (const demo of demos) {
       waitUntil: 'networkidle',
       timeout: PAGE_TIMEOUT_MS,
     })
-    // 给动画类演示留出几帧时间
-    await page.waitForTimeout(700)
-    const probe = await page.evaluate(() => {
+    // 轮询等待画布出现内容，而不是固定等一小段时间
+    const probeFn = () => {
       const canvases = [...document.querySelectorAll('canvas')]
       let nonTransparent = 0
       for (const c of canvases) {
@@ -108,7 +139,15 @@ for (const demo of demos) {
         }
       }
       return { canvasCount: canvases.length, nonTransparent }
-    })
+    }
+
+    const deadline = Date.now() + PAINT_POLL_MS
+    let probe = { canvasCount: 0, nonTransparent: 0 }
+    for (;;) {
+      probe = await page.evaluate(probeFn)
+      if (probe.nonTransparent > 0 || Date.now() > deadline) break
+      await page.waitForTimeout(PAINT_POLL_INTERVAL_MS)
+    }
     canvasCount = probe.canvasCount
     painted = probe.nonTransparent > 0
   } catch (e) {
@@ -116,12 +155,14 @@ for (const demo of demos) {
   }
   await page.close()
 
+  const blankIsFine = INTENTIONALLY_BLANK.has(rel)
   results.push({
     file: rel,
-    ok: errors.length === 0 && canvasCount > 0 && painted,
+    ok: errors.length === 0 && canvasCount > 0 && (painted || blankIsFine),
     errors,
     canvasCount,
     painted,
+    intentionallyBlank: blankIsFine || undefined,
   })
 }
 

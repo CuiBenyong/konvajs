@@ -1,24 +1,38 @@
 ---
 title: '复杂补间动画'
-description: '用 GreenSock Konva Plugin 实现比内置 Tween 更复杂的补间动画，支持时间轴编排与更丰富的缓动控制。'
-sidebar_position: 6
+description: '把多段 Konva.Tween 用 onFinish 串联，并配合 Konva.Animation 逐帧更新渐变色标——fillLinearGradientColorStops 无法用 Tween 直接过渡。'
+sidebar_position: 4
 ---
-你还可以使用 <a href="https://github.com/konvajs/greensock-plugin" target="_blank">GreenSock Konva Plugin</a> 插件添加更为复杂的tween动画, GreenSock tweens 要比Konva 自带的tween 功能强大得多
 
-下面的示例演示了如何使用GreenSock给形状的 `fillLinearGradientColorStops` 属性设置动画效果
+复杂动画往往不是一段补间能表达的。这一页演示两件事：用 `onFinish` 把多段
+`Konva.Tween` 串成序列，以及用 `Konva.Animation` 处理 `Tween` 无法直接过渡的属性。
 
+点击圆形后会依次发生：先以 `EaseInOut` 放大到 1.5 倍，结束时自动启动第二段补间
+以 `BounceEaseOut` 弹回原尺寸；与此同时，一个 `Konva.Animation` 每帧改写
+`fillLinearGradientColorStops`，让渐变的中间色标持续移动，2 秒后停止。
+
+## 为什么渐变要用 Animation 而不是 Tween
+
+`Konva.Tween` 过渡的是数值型属性。`fillLinearGradientColorStops` 是一个
+「位置、颜色」交替排列的数组，中间还夹着颜色字符串，不能按数值插值，
+所以这里用 `Konva.Animation` 在每一帧里自己算出新的色标数组再写回去。
+
+## 记得清理
+
+每段补间在 `onFinish` 里调用了 `destroy()`，`Animation` 到点也会 `stop()`。
+重复点击时先执行 `stopAnimation()` 把上一轮全部清掉——否则多轮动画会同时
+作用在同一个节点上互相打架，`Animation` 也会一直跑下去持续占用每一帧。
 
 <iframe src="/downloads/code/tweens/Complex_Tweening.html" style="width: 50vw;height:300px;"></iframe>
 
 ```html
+/**
+ * tweens/Complex_Tweening.html
+ */
 <!DOCTYPE html>
 <html>
 <head>
   <script src="https://unpkg.com/konva@10/konva.min.js"></script>
-  <script src="https://rawgit.com/konvajs/greensock-plugin/master/KonvaPlugin.js"></script>
-  <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenLite.min.js"></script>
-  <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TimelineLite.min.js"></script>
-  <script src="http://www.snorkl.tv/dev/libs/greensock/plugins/ColorPropsPlugin.min.js"></script>
   <meta charset="utf-8">
   <title>Konva Complex Tweening Demo</title>
   <style>
@@ -35,7 +49,7 @@ sidebar_position: 6
   <script>
     var width = window.innerWidth;
     var height = window.innerHeight;
-    
+
     var stage = new Konva.Stage({
       container: 'container',
       width: width,
@@ -44,103 +58,79 @@ sidebar_position: 6
 
     var layer = new Konva.Layer();
 
-    var star = new Konva.Star({
-        x: 100,
-        y: 250,
-        numPoints: 5,
-        innerRadius: 40,
-        outerRadius:70,
-        fill:"red"
+    var circle = new Konva.Circle({
+      x: width / 2,
+      y: height / 2,
+      radius: 70,
+      fillLinearGradientStartPoint: { x: -50, y: -50 },
+      fillLinearGradientEndPoint: { x: 50, y: 50 },
+      fillLinearGradientColorStops: [0, 'red', 1, 'yellow'],
+      stroke: 'black',
+      strokeWidth: 4,
+      draggable: true
     });
 
-    layer.add(star);
+    layer.add(circle);
     stage.add(layer);
 
-    var tl = new TimelineLite();
+    var scaleUpTween, scaleDownTween, gradientAnimation, gradientTimer;
 
-    // plugin example
-    tl.to(star, 2, {
-        konva: {
-            x:300,
-            y:130,
-            innerRadius:15,
-            rotation:360
-        },
-        ease:Power4.easeOut
-    })
-            .to(star, 2, {
-                konva : {
-                    fill:"rgb(0,0,255)",
-                    scaleX: 1.5,
-                    scaleY : 1.5
-                }
-            })
-            .to(star, 1, {
-                konva: {
-                    fill: "#0F0",
-                    scaleX:3,
-                    scaleY:1,
-                    shadowOffsetX:10,
-                    shadowOffsetY:10,
-                    shadowBlur:10,
-                    shadowColor: "black",
-                    rotation: 0
-                }
-            });
-
-
-    var linearGradPentagon = new Konva.RegularPolygon({
-        x: 70,
-        y: 70,
-        sides: 5,
-        radius: 70,
-        fillLinearGradientStartPoint: {
-            x: -50,
-            y: -50
-        },
-        fillLinearGradientEndPoint: {
-            x: 50,
-            y: 50
-        },
-        fillLinearGradientColorStops: [0, 'red', 1, 'yellow'],
-        stroke: 'black',
-        strokeWidth: 4,
-        draggable: true
-    });
-
-    layer.add(linearGradPentagon);
-    linearGradPentagon.moveToBottom();
-
-
-    //activate ColorPropsPlugin
-    TweenPlugin.activate([ColorPropsPlugin]);
-
-    //object to store color values
-    var tmpColors = {
-        color0: 'white',
-        color1: 'black'
-    };
-
-
-    //tween the color values in myObject
-    TweenLite.to(tmpColors, 5, {
-        colorProps: {
-            color0: 'black',
-            color1: 'red'
-        },
-        yoyo: true,
-        repeat: 5,
-        ease:Linear.easeNone,
-        onUpdate: applyProps
-    });
-
-    //apply new color values to gradient css of target
-    function applyProps() {
-        linearGradPentagon.setAttrs({
-            fillLinearGradientColorStops: [0, tmpColors.color0, 1, tmpColors.color1]
-        });
-        layer.batchDraw();
+    function stopAnimation() {
+      if (scaleUpTween) scaleUpTween.destroy();
+      if (scaleDownTween) scaleDownTween.destroy();
+      if (gradientAnimation) gradientAnimation.stop();
+      clearTimeout(gradientTimer);
+      scaleUpTween = scaleDownTween = gradientAnimation = gradientTimer = undefined;
     }
+
+    circle.on('click tap', function () {
+      stopAnimation();
+
+      // 第一段补间：放大
+      scaleUpTween = new Konva.Tween({
+        node: circle,
+        duration: 1,
+        scaleX: 1.5,
+        scaleY: 1.5,
+        easing: Konva.Easings.EaseInOut,
+        onFinish: function () {
+          scaleUpTween.destroy();
+          scaleUpTween = undefined;
+          // 在上一段结束时启动第二段：弹回原尺寸
+          scaleDownTween = new Konva.Tween({
+            node: circle,
+            duration: 1,
+            scaleX: 1,
+            scaleY: 1,
+            easing: Konva.Easings.BounceEaseOut,
+            onFinish: function () {
+              scaleDownTween.destroy();
+              scaleDownTween = undefined;
+            }
+          });
+          scaleDownTween.play();
+        }
+      });
+      scaleUpTween.play();
+
+      // 渐变色标无法用 Tween 直接过渡，改用 Animation 每帧手动更新
+      var ratio = 0;
+      gradientAnimation = new Konva.Animation(function (frame) {
+        ratio += frame.timeDiff / 1000;
+        if (ratio > 1) ratio = 0;
+        circle.fillLinearGradientColorStops([0, 'red', ratio, 'yellow', 1, 'blue']);
+      }, layer);
+      gradientAnimation.start();
+
+      gradientTimer = setTimeout(function () {
+        gradientAnimation.stop();
+        gradientAnimation = undefined;
+        gradientTimer = undefined;
+      }, 2000);
+    });
+
+    // 首屏就让读者看到效果，不必等点击
+    circle.fire('click');
   </script>
 
 </body>

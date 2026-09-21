@@ -72,7 +72,7 @@ sidebar_position: 5
     }
     console.timeEnd('default params');
 
-    layer.children.each(function(shape) {
+    layer.children.forEach(function(shape) {
         shape.strokeHitEnabled(false);
     });
 
@@ -82,7 +82,7 @@ sidebar_position: 5
     }
     console.timeEnd('strokeHitEnabled = false');
 
-    layer.children.each(function(shape) {
+    layer.children.forEach(function(shape) {
         shape.strokeHitEnabled(true);
         shape.shadowForStrokeEnabled(false)
     });
@@ -94,7 +94,7 @@ sidebar_position: 5
     console.timeEnd('shadowForStrokeEnabled = false');
 
 
-    layer.children.each(function(shape) {
+    layer.children.forEach(function(shape) {
         shape.strokeHitEnabled(false);
         shape.shadowForStrokeEnabled(false);
     });

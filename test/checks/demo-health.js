@@ -51,7 +51,9 @@ module.exports = {
       const why = [];
       if (r.errors.length) why.push(`控制台错误：${r.errors[0].slice(0, 100)}`);
       if (r.canvasCount === 0) why.push('页面上没有 canvas');
-      else if (!r.painted) why.push('canvas 上没有画出任何内容');
+      // intentionallyBlank 的页面（如 Hide_and_Show，图形以 visible: false 创建）
+      // 空白就是它要演示的效果，只校验无报错与存在 canvas。
+      else if (!r.painted && !r.intentionallyBlank) why.push('canvas 上没有画出任何内容');
       problems.push(`${r.file} — ${why.join('；')}`);
     }
 

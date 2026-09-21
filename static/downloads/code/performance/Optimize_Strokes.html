@@ -52,7 +52,7 @@
     }
     console.timeEnd('default params');
 
-    layer.children.each(function(shape) {
+    layer.children.forEach(function(shape) {
         shape.strokeHitEnabled(false);
     });
 
@@ -62,7 +62,7 @@
     }
     console.timeEnd('strokeHitEnabled = false');
 
-    layer.children.each(function(shape) {
+    layer.children.forEach(function(shape) {
         shape.strokeHitEnabled(true);
         shape.shadowForStrokeEnabled(false)
     });
@@ -74,7 +74,7 @@
     console.timeEnd('shadowForStrokeEnabled = false');
 
 
-    layer.children.each(function(shape) {
+    layer.children.forEach(function(shape) {
         shape.strokeHitEnabled(false);
         shape.shadowForStrokeEnabled(false);
     });

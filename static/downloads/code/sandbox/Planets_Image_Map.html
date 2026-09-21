@@ -122,13 +122,20 @@
         }, false);
 
         messageLayer.add(text);
+
+        // 用 Konva.Image 而不是往图层的 context 上手工 drawImage。
+        // 现代 Konva 默认开启自动重绘，stage.add() 会调度一次重绘并清空画布，
+        // 手工画上去的内容会被抹掉——这个演示此前正是这样整幅空白的。
+        var planetsImage = new Konva.Image({
+            image: imageObj,
+            x: 0,
+            y: 0
+        });
+        planetsLayer.add(planetsImage);
+
         stage.add(planetsLayer);
         stage.add(circlesLayer);
         stage.add(messageLayer);
-
-        // draw planets
-        var planetsContext = planetsLayer.getContext();
-        planetsContext.drawImage(imageObj, 0, 0);
     };
     imageObj.src = '/assets/planets.png';
   </script>

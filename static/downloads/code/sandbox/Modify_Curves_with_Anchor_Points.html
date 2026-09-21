@@ -26,8 +26,8 @@
         var q = quad;
         var b = bezier;
 
-        var quadLine = lineLayer.get('#quadLine')[0];
-        var bezierLine = lineLayer.get('#bezierLine')[0];
+        var quadLine = lineLayer.findOne('#quadLine');
+        var bezierLine = lineLayer.findOne('#bezierLine');
 
         quadLine.setPoints([q.start.attrs.x, q.start.attrs.y, q.control.attrs.x, q.control.attrs.y, q.end.attrs.x, q.end.attrs.y]);
 
