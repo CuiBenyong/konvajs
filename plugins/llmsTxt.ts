@@ -40,6 +40,13 @@ const SECTIONS: { prefix: string; title: string }[] = [
   { prefix: '/docs/selectors', title: '选择器' },
   { prefix: '/docs/data-and-serialization', title: '数据与序列化' },
   { prefix: '/docs/performance', title: '性能优化' },
+  { prefix: '/docs/select-and-transform', title: '选择与变换' },
+  { prefix: '/docs/guides', title: '选型指南' },
+  { prefix: '/docs/nodejs', title: 'Node.js 环境' },
+  { prefix: '/docs/migration', title: '升级与迁移' },
+  { prefix: '/docs/integration', title: '框架与工程集成' },
+  { prefix: '/docs/china', title: '中文环境' },
+  { prefix: '/docs/editor', title: '编辑器常用功能' },
   { prefix: '/docs/support', title: '帮助' },
 ]
 

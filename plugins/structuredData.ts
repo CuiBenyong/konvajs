@@ -24,20 +24,27 @@ import { SITE_URL } from '../siteMeta'
  * 再写入带完整层级的版本。test/checks/jsonld.js 会断言每页有且仅有一个。
  */
 
-/** 目录名 → 面包屑显示名。与 docs/<section>/_category_.json 的 label 保持一致。 */
-const SECTION_LABELS: Record<string, string> = {
-  shapes: '图形',
-  styling: '样式',
-  events: '事件',
-  'drag-and-drop': '拖拽/释放',
-  clipping: '剪辑',
-  'groups-and-layers': '分组、图层',
-  filters: '滤镜',
-  tweens: '补间动画',
-  animations: '动画',
-  selectors: '选择器',
-  'data-and-serialization': '数据序列化',
-  performance: '性能优化',
+/**
+ * 目录名 → 面包屑显示名，直接取自 docs/<section>/_category_.json 的 label。
+ *
+ * 原先是手写的一张表，要求与 _category_.json「保持一致」——实际上
+ * select-and-transform、guides、nodejs 三个章节加进来时都漏了，
+ * 面包屑退回成英文目录名。侧边栏本就以 _category_.json 为准，这里跟它走同一个来源。
+ */
+async function loadSectionLabels(siteDir: string): Promise<Record<string, string>> {
+  const docsDir = path.join(siteDir, 'docs')
+  const labels: Record<string, string> = {}
+  for (const entry of await fs.readdir(docsDir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue
+    try {
+      const raw = await fs.readFile(path.join(docsDir, entry.name, '_category_.json'), 'utf8')
+      const { label } = JSON.parse(raw) as { label?: string }
+      if (label) labels[entry.name] = label
+    } catch {
+      // 没有 _category_.json 的目录不是章节，跳过
+    }
+  }
+  return labels
 }
 
 function decodeEntities(input: string): string {
@@ -141,7 +148,7 @@ async function collectDocPages(dir: string, out: string[] = []): Promise<string[
 export default function structuredDataPlugin(): Plugin {
   return {
     name: 'konva-structured-data',
-    async postBuild({ outDir }) {
+    async postBuild({ outDir, siteDir }) {
       const docsDir = path.join(outDir, 'docs')
       let pages: string[] = []
       try {
@@ -150,6 +157,7 @@ export default function structuredDataPlugin(): Plugin {
         // docs 目录不存在时跳过，不让构建失败。
         return
       }
+      const sectionLabels = await loadSectionLabels(siteDir)
 
       for (const file of pages) {
         const original = await fs.readFile(file, 'utf8')
@@ -166,7 +174,7 @@ export default function structuredDataPlugin(): Plugin {
         if (segments.length === 3) {
           const section = segments[1]
           crumbs.push({
-            name: SECTION_LABELS[section] ?? section,
+            name: sectionLabels[section] ?? section,
             // 分类本身没有独立页面，指向该分类下第一个可达页面不准确，
             // 因此统一指向教程目录——它列出了全部分类。
             item: `${SITE_URL}/docs/overview`,

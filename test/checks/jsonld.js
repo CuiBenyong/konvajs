@@ -96,6 +96,11 @@ module.exports = {
           if (it.position !== i + 1) problems.push(`${r} 面包屑 position 不连续`);
           if (!it.name || !it.item) problems.push(`${r} 面包屑第 ${i + 1} 项缺 name 或 item`);
         });
+        // 四级面包屑的第三项是章节名。插件找不到章节名时会退回目录名，
+        // 退回的结果是英文 slug（如 select-and-transform），不含中文即说明漏了。
+        if (items.length === 4 && !/[一-鿿]/.test(items[2].name)) {
+          problems.push(`${r} 面包屑的章节名是目录名「${items[2].name}」，_category_.json 未被读到`);
+        }
       }
     }
 
