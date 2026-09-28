@@ -96,8 +96,14 @@ sidebar_position: 2
       if (e.target.hasName('item')) tr.nodes([e.target]);
     });
 
+    // 页面上真正的输入框里的复制粘贴属于输入框，不属于画布
+    function isFormField(el) {
+      return !!el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
+    }
+
     // ---- 复制 ----
-    // 系统剪贴板不一定可写，页面里再存一份
+    // 系统剪贴板不一定可写，也不是每个浏览器都会在没有选中文字时派发 copy 事件，
+    // 页面里再存一份
     var memory = null;
     var pasteCount = 0;
 
@@ -110,7 +116,7 @@ sidebar_position: 2
 
     document.addEventListener('copy', function (e) {
       var nodes = tr.nodes();
-      if (!nodes.length) return;
+      if (!nodes.length || isFormField(document.activeElement)) return;
       var data = serialize(nodes);
       // copy 事件里同步写入，不需要剪贴板权限，HTTP 页面也可用
       e.clipboardData.setData('text/plain', data);
@@ -160,7 +166,18 @@ sidebar_position: 2
       tr.moveToTop();
     }
 
+    var pasteHandled = false;
+
     document.addEventListener('paste', function (e) {
+      if (isFormField(document.activeElement)) return;
+      pasteHandled = true;
+      // 先认自己写进去的 JSON：同时带有 PNG 的剪贴板内容，粘贴回来应是可编辑的节点
+      var text = e.clipboardData ? e.clipboardData.getData('text/plain') : '';
+      if (restore(text)) {
+        e.preventDefault();
+        clipStatus.text('剪贴板：已粘贴 ' + tr.nodes().length + ' 个节点');
+        return;
+      }
       var items = e.clipboardData ? e.clipboardData.items : [];
       for (var i = 0; i < items.length; i++) {
         if (items[i].kind === 'file' && items[i].type.indexOf('image/') === 0) {
@@ -170,18 +187,36 @@ sidebar_position: 2
           return;
         }
       }
-      var text = e.clipboardData ? e.clipboardData.getData('text/plain') : '';
-      if (restore(text || memory || '')) {
+      // 剪贴板里什么都没有（比如写入失败），退回页面内的副本
+      if (!text && restore(memory || '')) {
         e.preventDefault();
         clipStatus.text('剪贴板：已粘贴 ' + tr.nodes().length + ' 个节点');
       }
     });
 
-    // ---- 原地复制：画布内部直接 clone，不经过剪贴板 ----
     window.addEventListener('keydown', function (e) {
-      var el = e.target;
-      if (e.isComposing || el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable) return;
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'd' && tr.nodes().length) {
+      if (e.isComposing || isFormField(e.target)) return;
+      var mod = e.metaKey || e.ctrlKey;
+      var key = e.key.toLowerCase();
+
+      // ---- 兜底：浏览器没有派发 copy / paste 事件时，用页面内的副本 ----
+      if (mod && key === 'c' && tr.nodes().length) {
+        memory = serialize(tr.nodes());
+        pasteCount = 0;
+        clipStatus.text('剪贴板：' + tr.nodes().length + ' 个节点');
+      }
+      if (mod && key === 'v') {
+        pasteHandled = false;
+        // paste 事件若会到达，一定在这个定时器之前
+        setTimeout(function () {
+          if (!pasteHandled && restore(memory || '')) {
+            clipStatus.text('剪贴板：已粘贴 ' + tr.nodes().length + ' 个节点');
+          }
+        }, 0);
+      }
+
+      // ---- 原地复制：画布内部直接 clone，不经过剪贴板 ----
+      if (mod && key === 'd' && tr.nodes().length) {
         e.preventDefault(); // 否则浏览器会弹出「添加书签」
         var copies = tr.nodes().map(function (n) {
           var c = n.clone({ id: nextId(), x: n.x() + 20, y: n.y() + 20 });
@@ -202,6 +237,12 @@ sidebar_position: 2
 演示没有调用 `navigator.clipboard`，而是监听 `document` 的 `copy` 与 `paste` 事件。
 用户按下复制粘贴快捷键时，浏览器会派发这两个事件，并在事件对象上提供 `clipboardData`，
 在回调里**同步**读写即可：不需要申请权限，不弹确认框，HTTP 页面也能用。
+
+两点细节。第一，焦点在页面的输入框里时，复制粘贴属于输入框，两个回调开头都要先判断
+`document.activeElement`，否则用户在属性面板里复制一段文字，拿到的却是节点 JSON。
+第二，并不是所有浏览器都会在页面**没有选中文字**时派发 `copy` / `paste` 事件——
+本站只在 Chrome 上实测了事件路径。演示因此在 `keydown` 里另存一份页面内的副本：
+按下 Ctrl/⌘ + V 后如果 `paste` 事件没有到达，就用这份副本粘贴。
 
 序列化用 `node.toObject()`，还原用 `Konva.Node.create(obj)`。写进剪贴板的 JSON 里加一个
 `type` 字段作标记：用户剪贴板里可能是任何文字，粘贴时先确认是自己写进去的，再去还原。
@@ -265,7 +306,18 @@ App 内置浏览器里跨应用粘贴图片也很难做到。移动端的编辑�
 
 ### 复制的节点能粘贴到 Figma 或 PPT 里吗？
 
-不能直接粘贴，这些软件不认识 Konva 的 JSON。要互通的话，复制时额外写入一份 PNG：
-用 `node.toBlob()` 生成图片，再用
-`navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])` 写进剪贴板。
-这样粘贴到别的软件里得到的是图片，粘贴回自己的画布时仍可以读 JSON 还原成可编辑的节点。
+不能直接粘贴，这些软件不认识 Konva 的 JSON。要互通的话，复制时把 JSON 和一份 PNG
+写进**同一个** `ClipboardItem`——分两次写入的话，后一次会把前一次覆盖掉：
+
+```js
+const png = await node.toBlob({ pixelRatio: 2 });
+await navigator.clipboard.write([
+  new ClipboardItem({
+    'text/plain': new Blob([json], { type: 'text/plain' }),
+    'image/png': png,
+  }),
+]);
+```
+
+粘贴到别的软件里得到的是图片；粘贴回自己的画布时，`paste` 回调要**先检查 JSON 标记、再检查图片文件**，
+才能还原成可编辑的节点，演示正是这个顺序。注意 `navigator.clipboard.write` 受安全上下文限制，见上一节。

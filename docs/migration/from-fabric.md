@@ -61,6 +61,8 @@ layer.add(rect);
 const tr = new Konva.Transformer();
 layer.add(tr);
 stage.on('pointerdown', (e) => {
+  // 按在控制柄上时，目标是 Transformer 自己的锚点，不能拿它当选中对象
+  if (e.target.getParent() === tr) return;
   tr.nodes(e.target === stage ? [] : [e.target]);
 });
 

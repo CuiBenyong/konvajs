@@ -141,7 +141,7 @@ Konva 10 不再自动加载 Node 端的画布模块。安装 `canvas` 或 `skia-
 ### 用了 Next.js 还要 ssr: false 吗？
 
 Konva 10 配合 react-konva 19，不需要。react-konva 在浏览器里才创建舞台，
-服务端只渲染一个空 `div`；`dynamic(..., { ssr: false })` 只在你想拆包时才有意义。
+服务端只渲染一个空 `div`；`dynamic(..., { ssr: false })` 只在想延后加载画布时才有意义，而且必须写在 Client Component 里。
 实测与写法见[在 Next.js 中使用](/docs/integration/nextjs)。
 
 ### AI 生成的代码是 Konva 8 以前的写法怎么办？

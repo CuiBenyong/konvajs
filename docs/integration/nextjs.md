@@ -113,25 +113,48 @@ export default function ResponsiveCanvas() {
 
 ## 性能提示
 
-不需要 `dynamic()` 来避免报错，不代表它没有用处。`konva.min.js`（10.7.0）约 188 KB，
-gzip 后约 56 KB，再加上 react-konva 和 React 协调器的代码。直接 `import` 画布组件，
-这部分代码会进入该路由的首屏包。对**只有编辑器页才用画布**的站点，
-这是给其他页面白白增加的下载和解析时间。
+`konva.min.js`（10.7.0）约 188 KB，gzip 后约 56 KB，再加上 react-konva 和 React 协调器的代码。
+App Router 本身按路由拆包：画布组件只被 `/editor` 引用时，**其他路由的首屏包里不会有 Konva**。
+本站用 Next.js 16.3.6 实测，首页的首屏脚本里没有 Konva，直接引入画布组件的 `/editor` 则有。
+所以「只有编辑器页用画布」的站点，什么都不做就已经不会拖慢其他页面。
 
-这时 `dynamic()` 的价值是**拆包**：
+`dynamic()` 真正有用的是**同一个路由内部的延后加载**：画布在页面下方、藏在弹窗或标签页里、
+要用户点一下才出现。这时把它从该路由的首屏包里拿出去，页面主体能更早可交互。
+另一种情况是画布组件被放进了共享的 `layout`，那它会进入所有子路由的首屏包，也应该拆出去。
+
+注意 `ssr: false` **只能写在 Client Component 里**。写在 Server Component（比如 `app/page.jsx`）里，
+构建会直接报错：`` `ssr: false` is not allowed with `next/dynamic` in Server Components ``。
+要单独建一个带 `'use client'` 的包装组件：
 
 ```jsx
+// app/LazyEditor.jsx
+'use client';
+
 import dynamic from 'next/dynamic';
 
 const Editor = dynamic(() => import('./Editor'), {
   ssr: false,
   loading: () => <div style={{ height: 400 }}>编辑器加载中…</div>,
 });
+
+export default function LazyEditor() {
+  return <Editor />;
+}
 ```
 
-这里的 `ssr: false` 不是为了规避报错，而是让服务端连那个空 `div` 都不渲染，省掉一次无意义的预渲染；
+```jsx
+// app/page.jsx —— Server Component 里引入的是包装组件
+import LazyEditor from './LazyEditor';
+
+export default function Page() {
+  return <LazyEditor />;
+}
+```
+
+实测这样写构建通过，Konva 不在该路由的首屏脚本里，页面加载后画布正常出现。
+这里的 `ssr: false` 不是为了规避报错，而是让服务端连那个空 `div` 都不渲染；
 `loading` 占位的高度要与画布一致，避免加载完成时布局跳动。
-画布是首屏核心内容的页面（比如编辑器本身）则不必拆，直接引入反而更快。
+画布本身就是首屏核心内容的页面（比如编辑器页）不必这样拆，直接引入反而更快。
 
 版本搭配上，react-konva 的主版本号跟随 React：React 19 用 react-konva 19，React 18 用 react-konva 18。
 
@@ -147,7 +170,7 @@ Konva 9 及更早的版本会在 Node 环境自动加载它，这正是旧答案
 
 多半是你自己的代码在模块顶层或渲染阶段访问了 `window`、`document`，而不是 Konva。
 把这些访问移进 `useEffect`，或者像上面那样先用固定值渲染。
-另一种情况是用了会在导入时就访问 `window` 的第三方库，那才需要用 `dynamic(..., { ssr: false })` 引入它。
+另一种情况是用了会在导入时就访问 `window` 的第三方库，那才需要用 `dynamic(..., { ssr: false })` 引入它，写法同上一节的包装组件。
 
 ### 构建时出现 Several Konva instances detected？
 

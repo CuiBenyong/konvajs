@@ -175,18 +175,22 @@ Web Font 在国内加载慢，会带来一个 DOM 上没有的问题：Canvas �
 **已经画上去的内容不会自动重绘**——画面就一直停留在回退字体的样子，
 直到下一次 `layer.draw()`。
 
-可靠的做法是等字体就绪再绘制：
+而且单纯重绘并不够：`Konva.Text` 的换行在创建时就按当时的字体算好了，
+字体到达后调用 `layer.draw()`，字形会换成新字体，换行和基线却还是按回退字体算的。
+可靠的做法是等字体就绪**再创建文字节点**；节点已经存在的话，要强制它重排：
 
 ```js
-await document.fonts.ready;
-// 或者只等某一个字体
-await document.fonts.load('16px "Source Han Sans"');
-layer.draw();
+// 创建之前：第二个参数传实际要显示的文字，切片字体才会下载到对应的分片
+await document.fonts.load('16px "Source Han Sans SC"', content);
+
+// 已经创建过的节点：设成相同的值不会触发重排，先换一个值再换回来
+const family = text.fontFamily();
+text.fontFamily('');
+text.fontFamily(family);
 ```
 
 另一个后果是布局。回退字体与目标字体的字宽不同，依赖 `text.width()` 做的定位、
 换行、居中计算，在字体切换前后会得到两组不同的结果。如果必须先渲染再替换字体，
 记得在字体就绪后重新执行一遍布局计算，而不只是 `draw()`。
 
-`Konva.Text` 自己的换行同样不会随字体到达而重算，已有节点需要强制重排，
-实测数据与写法见[中文字体加载](/docs/china/chinese-fonts)。
+实测数据、为什么纯中文段落看不出问题，以及导出前的注意事项，见[中文字体加载](/docs/china/chinese-fonts)。

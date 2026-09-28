@@ -56,8 +56,12 @@
     });
     layer.add(imeStatus);
 
-    function setStatus(ime, enter) {
-      imeStatus.text('输入法：' + ime + (enter ? '    最近一次回车：' + enter : ''));
+    // 组合状态与「最近一次回车」分开记：两类事件的先后顺序因浏览器而异，
+    // Chrome 先派发回车的 keydown 再派发 compositionend，Safari 反过来
+    var imeState = '空闲';
+    var lastEnter = '';
+    function renderStatus() {
+      imeStatus.text('输入法：' + imeState + (lastEnter ? '    最近一次回车：' + lastEnter : ''));
     }
 
     var editing = null;
@@ -107,10 +111,12 @@
       area.select();
 
       area.addEventListener('compositionstart', function () {
-        setStatus('组合中');
+        imeState = '组合中';
+        renderStatus();
       });
       area.addEventListener('compositionend', function () {
-        setStatus('空闲');
+        imeState = '空闲';
+        renderStatus();
       });
 
       area.addEventListener('keydown', function (e) {
@@ -118,12 +124,16 @@
         // Safari 在确认候选词的那次回车上 isComposing 可能已是 false，
         // 但 keyCode 仍为 229，两个条件缺一不可。
         if (e.isComposing || e.keyCode === 229) {
-          if (e.key === 'Enter') setStatus('组合中', '已忽略（在选候选词）');
+          if (e.key === 'Enter') {
+            lastEnter = '已忽略（在选候选词）';
+            renderStatus();
+          }
           return;
         }
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
-          setStatus('空闲', '已提交');
+          lastEnter = '已提交';
+          renderStatus();
           finish(true);
         } else if (e.key === 'Escape') {
           finish(false);
