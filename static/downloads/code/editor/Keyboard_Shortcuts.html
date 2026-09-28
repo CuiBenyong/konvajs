@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Keyboard Shortcuts Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #F0F0F0;
+    }
+    #note {
+      position: absolute;
+      left: 40px;
+      top: 220px;
+      width: 220px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <input id="note" placeholder="在这里打字，Delete 不会删图形">
+  <script>
+    var FONT = '"PingFang SC", "Microsoft YaHei", sans-serif';
+
+    var stage = new Konva.Stage({
+      container: 'container',
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    var colors = ['#60a5fa', '#f472b6', '#34d399', '#fbbf24'];
+    colors.forEach(function (color, i) {
+      layer.add(new Konva.Rect({
+        name: 'item',
+        x: 40 + i * 110, y: 110, width: 80, height: 80,
+        fill: color, cornerRadius: 6, draggable: true
+      }));
+    });
+
+    var tr = new Konva.Transformer();
+    layer.add(tr);
+
+    var hint = new Konva.Text({
+      x: 20, y: 16, fontSize: 13, fill: '#333', fontFamily: FONT, lineHeight: 1.5,
+      text: '点选图形（Shift 多选）后试试：Delete 删除、方向键微调（Shift ×10）、\nCtrl/⌘ + A 全选、Esc 取消选择'
+    });
+    var lastKey = new Konva.Text({
+      x: 20, y: 64, fontSize: 13, fill: '#2563eb', fontFamily: FONT, text: '最近按键：无'
+    });
+    layer.add(hint, lastKey);
+
+    // ---- 点选 ----
+    stage.on('click tap', function (e) {
+      if (e.target === stage) {
+        tr.nodes([]);
+        return;
+      }
+      if (!e.target.hasName('item')) return;
+      var selected = tr.nodes();
+      if (e.evt.shiftKey) {
+        var i = selected.indexOf(e.target);
+        tr.nodes(i >= 0
+          ? selected.filter(function (n) { return n !== e.target; })
+          : selected.concat(e.target));
+      } else {
+        tr.nodes([e.target]);
+      }
+    });
+
+    // ---- 快捷键 ----
+    // 输入法组合输入、以及页面上真正的输入框里的按键，都不属于画布
+    function shouldIgnore(e) {
+      var el = e.target;
+      return e.isComposing || e.keyCode === 229 ||
+        el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable;
+    }
+
+    function describe(e) {
+      var parts = [];
+      if (e.ctrlKey) parts.push('Ctrl');
+      if (e.metaKey) parts.push('⌘');
+      if (e.shiftKey) parts.push('Shift');
+      if (e.altKey) parts.push('Alt');
+      parts.push(e.key === ' ' ? 'Space' : e.key);
+      return parts.join(' + ');
+    }
+
+    var ARROWS = {
+      ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1]
+    };
+
+    window.addEventListener('keydown', function (e) {
+      if (shouldIgnore(e)) return;
+      var mod = e.metaKey || e.ctrlKey; // macOS 用 ⌘，其他平台用 Ctrl
+      var selected = tr.nodes();
+      var handled = true;
+
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selected.length) {
+        tr.nodes([]);
+        selected.forEach(function (n) { n.destroy(); });
+      } else if (ARROWS[e.key] && selected.length) {
+        var step = e.shiftKey ? 10 : 1;
+        var d = ARROWS[e.key];
+        selected.forEach(function (n) {
+          n.position({ x: n.x() + d[0] * step, y: n.y() + d[1] * step });
+        });
+      } else if (mod && e.key.toLowerCase() === 'a') {
+        tr.nodes(layer.find('.item'));
+      } else if (e.key === 'Escape') {
+        tr.nodes([]);
+      } else {
+        handled = false;
+      }
+
+      if (handled) {
+        // 拦掉浏览器自己的行为：全选页面文字、方向键滚动页面等
+        e.preventDefault();
+        lastKey.text('最近按键：' + describe(e));
+      }
+    });
+  </script>
+
+</body>
+</html>
