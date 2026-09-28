@@ -1,5 +1,5 @@
 {
-  "total": 152,
+  "total": 157,
   "results": [
     {
       "file": "downloads/code/animations/Moving.html",
@@ -31,6 +31,20 @@
     },
     {
       "file": "downloads/code/animations/Text_Animations.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/china/Ime_Text_Editing.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/china/Webview_Canvas_Limits.html",
       "ok": true,
       "errors": [],
       "canvasCount": 1,
@@ -146,6 +160,27 @@
       "ok": true,
       "errors": [],
       "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/editor/Clipboard.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/editor/Keyboard_Shortcuts.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/editor/Rulers_And_Guides.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 3,
       "painted": true
     },
     {

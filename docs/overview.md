@@ -1,12 +1,12 @@
 ---
 title: '教程目录'
-description: 'Konva 中文教程总目录，按图形、样式、事件、选择器、滤镜、拖拽、裁剪、动画、补间、序列化、分组图层与性能优化十二个主题组织，可从任一主题进入。'
+description: 'Konva 中文教程总目录：图形、样式、事件、变换、拖拽、滤镜、动画、序列化与性能优化等核心主题，以及中文环境、框架集成、编辑器功能、升级迁移四个原创专题。'
 sidebar_position: 2
 ---
 
 # 教程目录
 
-本站教程按十二个主题组织，彼此独立，可以从任一主题进入。若你是第一次接触 Konva，
+本站教程按主题组织，彼此独立，可以从任一主题进入。若你是第一次接触 Konva，
 建议先读[开始](/docs/intro)了解舞台（Stage）、图层（Layer）与图形（Shape）的层次关系，
 再按下面的顺序推进。
 
@@ -34,6 +34,15 @@ sidebar_position: 2
 ## 进阶
 
 - [性能优化](/docs/performance/all-performance-tips)：缓存、批量绘制、命中图与内存泄漏规避
+
+## 原创专题
+
+以下章节官方文档没有，是本站针对中文开发者补写的：
+
+- [中文环境](/docs/china/chinese-fonts)：中文字体、输入法、移动端画布上限、小程序
+- [框架与工程集成](/docs/integration/nextjs)：Next.js 与 Nuxt 下的服务端渲染
+- [编辑器常用功能](/docs/editor/keyboard-shortcuts)：快捷键、复制粘贴、标尺与参考线
+- [升级与迁移](/docs/migration/upgrade-to-v10)：升级到 Konva 10、从 Fabric.js 迁移
 
 ## 常见问题
 

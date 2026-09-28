@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Canvas Memory Estimate Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #F0F0F0;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <script>
+    var FONT = '"PingFang SC", "Microsoft YaHei", sans-serif';
+    // iOS 上普遍观察到的单块 canvas 面积上限（4096 × 4096），以实机为准
+    var MAX_AREA = 16777216;
+    var MB = 1024 * 1024;
+
+    var stage = new Konva.Stage({
+      container: 'container',
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    var presets = [
+      { name: '当前窗口', w: window.innerWidth, h: window.innerHeight, dpr: window.devicePixelRatio || 1 },
+      { name: '手机 390×844 @3x', w: 390, h: 844, dpr: 3 },
+      { name: '手机 390×844 @2x', w: 390, h: 844, dpr: 2 },
+      { name: '平板 1024×1366 @2x', w: 1024, h: 1366, dpr: 2 }
+    ];
+    var current = 1;
+
+    // 每个 Konva.Layer：场景画布按 Konva.pixelRatio（默认 devicePixelRatio），
+    // 命中画布固定 pixelRatio 1。每像素 4 字节（RGBA）。
+    function layerBytes(p, listening) {
+      var scene = p.w * p.h * p.dpr * p.dpr * 4;
+      var hit = listening ? p.w * p.h * 4 : 0;
+      return { scene: scene, hit: hit };
+    }
+
+    // 导出面积不超过上限时，pixelRatio 最多能取多少
+    function maxExportRatio(p) {
+      return Math.floor(Math.sqrt(MAX_AREA / (p.w * p.h)) * 100) / 100;
+    }
+
+    function label(x, y, text, size, color, width) {
+      var t = new Konva.Text({
+        x: x, y: y, text: text, fontSize: size || 13,
+        fill: color || '#333', fontFamily: FONT
+      });
+      if (width) t.width(width);
+      layer.add(t);
+      return t;
+    }
+
+    function render() {
+      layer.destroyChildren();
+      var p = presets[current];
+
+      // 预设切换按钮
+      var btnX = 16;
+      presets.forEach(function (item, i) {
+        var btn = new Konva.Label({ x: btnX, y: 12 });
+        btn.add(new Konva.Tag({
+          fill: i === current ? '#2563eb' : '#fff',
+          stroke: '#2563eb', cornerRadius: 4
+        }));
+        btn.add(new Konva.Text({
+          text: item.name, padding: 6, fontSize: 12, fontFamily: FONT,
+          fill: i === current ? '#fff' : '#2563eb'
+        }));
+        btn.on('click tap', function () { current = i; render(); });
+        layer.add(btn);
+        btnX += btn.width() + 8;
+      });
+
+      var textW = stage.width() - 32;
+      var intro = label(16, 48, '舞台 ' + p.w + ' × ' + p.h + '，devicePixelRatio = ' + p.dpr +
+        '。每个图层的画布占用（场景 + 命中）：', 13, null, textW);
+      var barsTop = 48 + intro.height() + 10;
+
+      var maxBytes = 0;
+      for (var n = 1; n <= 6; n++) {
+        var b = layerBytes(p, true);
+        maxBytes = Math.max(maxBytes, (b.scene + b.hit) * n);
+      }
+      var barMax = Math.max(120, stage.width() - 190);
+
+      for (var n = 1; n <= 6; n++) {
+        var b = layerBytes(p, true);
+        var y = barsTop + (n - 1) * 26;
+        var sceneW = barMax * (b.scene * n) / maxBytes;
+        var hitW = barMax * (b.hit * n) / maxBytes;
+        label(16, y + 3, n + ' 个图层');
+        layer.add(new Konva.Rect({ x: 80, y: y, width: sceneW, height: 18, fill: '#60a5fa' }));
+        layer.add(new Konva.Rect({ x: 80 + sceneW, y: y, width: hitW, height: 18, fill: '#fbbf24' }));
+        label(88 + sceneW + hitW, y + 3, ((b.scene + b.hit) * n / MB).toFixed(1) + ' MB');
+      }
+      label(80, barsTop + 6 * 26, '■ 场景画布', 12, '#2563eb');
+      label(160, barsTop + 6 * 26, '■ 命中画布（listening: false 的图层没有这一块）', 12, '#b45309', textW - 144);
+
+      var exportIntro = label(16, barsTop + 6 * 26 + 30, '', 13, null, textW);
+      var ratio = maxExportRatio(p);
+      exportIntro.text('toDataURL({ pixelRatio }) 的画布面积 = 舞台面积 × pixelRatio²；' +
+        '这个尺寸下 pixelRatio 最多约 ' + ratio + '，再大就可能超出 16,777,216 像素的面积上限：');
+      var top = exportIntro.y() + exportIntro.height() - 16;
+
+      // 右侧留出数字标注的位置
+      var scaleW = Math.max(80, stage.width() - 290) / (p.w * p.h * 16);
+      [1, 2, 3, 4].forEach(function (r, i) {
+        var area = p.w * p.h * r * r;
+        var y = top + 26 + i * 26;
+        label(16, y + 3, 'pixelRatio ' + r);
+        layer.add(new Konva.Rect({
+          x: 110, y: y, width: Math.max(2, area * scaleW), height: 18,
+          fill: area > MAX_AREA ? '#ef4444' : '#34d399'
+        }));
+        label(118 + area * scaleW, y + 3, (area / 1e6).toFixed(1) + ' 百万像素' + (area > MAX_AREA ? '（超限）' : ''));
+      });
+      var limitX = 110 + MAX_AREA * scaleW;
+      layer.add(new Konva.Line({
+        points: [limitX, top + 20, limitX, top + 26 + 4 * 26],
+        stroke: '#ef4444', dash: [4, 4]
+      }));
+    }
+
+    render();
+  </script>
+
+</body>
+</html>

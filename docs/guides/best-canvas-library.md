@@ -87,6 +87,8 @@ Konva 不预设你要做什么。它给你场景图、事件系统、命中检�
 医学影像标注、座位图、流程图这类有强领域约束的东西——
 那 Fabric 内置的那套反而要一件件关掉，不如从 Konva 开始。
 
+已经在用 Fabric、打算换过来的，概念与事件的逐项对照见[从 Fabric.js 迁移](/docs/migration/from-fabric)。
+
 ### 已经用了 ECharts / D3 还需要 Canvas 库吗？
 
 通常不需要。ECharts 内部就是 ZRender（一个 Canvas 渲染层），

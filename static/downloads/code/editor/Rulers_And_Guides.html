@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Rulers And Guides Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #F0F0F0;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <script>
+    var FONT = '"PingFang SC", "Microsoft YaHei", sans-serif';
+    var RULER = 20;       // 标尺宽度（屏幕像素）
+    var MIN_GAP = 50;     // 相邻主刻度之间至少隔多少屏幕像素
+    var SNAP_PX = 6;      // 吸附距离（屏幕像素）
+
+    var stage = new Konva.Stage({
+      container: 'container',
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+
+    // world：内容图层，缩放平移都作用在它身上。
+    // 不能变换 stage——stage 的变换会作用于所有图层，标尺会跟着一起缩放。
+    var world = new Konva.Layer();
+    // guides：参考线，屏幕坐标，由世界坐标换算得到
+    var guides = new Konva.Layer();
+    // ui：标尺，永远不变换
+    var ui = new Konva.Layer();
+    stage.add(world, guides, ui);
+
+    [['#60a5fa', 80, 90], ['#f472b6', 220, 150], ['#34d399', 330, 80]].forEach(function (d) {
+      world.add(new Konva.Rect({
+        name: 'item', fill: d[0], x: d[1], y: d[2], width: 80, height: 60,
+        cornerRadius: 6, draggable: true
+      }));
+    });
+    world.add(new Konva.Text({
+      x: 80, y: 250, fontSize: 13, fill: '#555', fontFamily: FONT, lineHeight: 1.5,
+      text: '滚轮缩放，拖动空白处平移。\n从顶部或左侧标尺按下并拖出参考线，拖回标尺上删除。\n拖动色块靠近参考线会吸附。'
+    }));
+
+    // ---------------- 标尺 ----------------
+
+    // 刻度步长：在 1、2、5 × 10ⁿ 中取屏幕间距不小于 MIN_GAP 的最小值
+    function tickStep(scale) {
+      var raw = MIN_GAP / scale;
+      var pow = Math.pow(10, Math.floor(Math.log10(raw)));
+      var candidates = [1, 2, 5, 10];
+      for (var i = 0; i < candidates.length; i++) {
+        if (candidates[i] * pow >= raw) return candidates[i] * pow;
+      }
+      return 10 * pow;
+    }
+
+    function decimals(step) {
+      return Math.max(0, -Math.floor(Math.log10(step)));
+    }
+
+    // 所有刻度用一个 Shape 的 sceneFunc 一次画完，而不是每个刻度一个节点
+    var rulerShape = new Konva.Shape({
+      listening: false,
+      sceneFunc: function (ctx) {
+        var w = stage.width(), h = stage.height();
+        var s = world.scaleX(), ox = world.x(), oy = world.y();
+        var step = tickStep(s), fixed = decimals(step);
+
+        ctx.fillStyle = '#fafafa';
+        ctx.fillRect(0, 0, w, RULER);
+        ctx.fillRect(0, 0, RULER, h);
+        ctx.strokeStyle = '#9ca3af';
+        ctx.fillStyle = '#6b7280';
+        ctx.font = '10px sans-serif';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+
+        // 顶部：屏幕 x = ox + 世界 x × s
+        var startX = Math.ceil((RULER - ox) / s / step) * step;
+        for (var wx = startX; ox + wx * s < w; wx += step) {
+          var sx = Math.round(ox + wx * s) + 0.5;
+          ctx.moveTo(sx, RULER);
+          ctx.lineTo(sx, RULER - 8);
+          ctx.fillText(wx.toFixed(fixed), sx + 2, 9);
+          // 半刻度
+          var half = Math.round(ox + (wx + step / 2) * s) + 0.5;
+          ctx.moveTo(half, RULER);
+          ctx.lineTo(half, RULER - 4);
+        }
+        // 左侧
+        var startY = Math.ceil((RULER - oy) / s / step) * step;
+        for (var wy = startY; oy + wy * s < h; wy += step) {
+          var sy = Math.round(oy + wy * s) + 0.5;
+          ctx.moveTo(RULER, sy);
+          ctx.lineTo(RULER - 8, sy);
+          ctx.save();
+          ctx.translate(9, sy - 2);
+          ctx.rotate(-Math.PI / 2);
+          ctx.fillText(wy.toFixed(fixed), 0, 0);
+          ctx.restore();
+          var halfY = Math.round(oy + (wy + step / 2) * s) + 0.5;
+          ctx.moveTo(RULER, halfY);
+          ctx.lineTo(RULER - 4, halfY);
+        }
+        ctx.moveTo(0, RULER + 0.5);
+        ctx.lineTo(w, RULER + 0.5);
+        ctx.moveTo(RULER + 0.5, 0);
+        ctx.lineTo(RULER + 0.5, h);
+        ctx.stroke();
+
+        ctx.fillStyle = '#e5e7eb';
+        ctx.fillRect(0, 0, RULER, RULER);
+      }
+    });
+    ui.add(rulerShape);
+
+    // 标尺上用于按下拖出参考线的透明热区
+    var topHit = new Konva.Rect({ x: RULER, y: 0, width: stage.width(), height: RULER, name: 'ruler-top' });
+    var leftHit = new Konva.Rect({ x: 0, y: RULER, width: RULER, height: stage.height(), name: 'ruler-left' });
+    ui.add(topHit, leftHit);
+
+    // ---------------- 世界坐标 ↔ 屏幕坐标 ----------------
+
+    function toWorld(screen) {
+      return world.getAbsoluteTransform().copy().invert().point(screen);
+    }
+    function toScreen(pt) {
+      return world.getAbsoluteTransform().point(pt);
+    }
+
+    // ---------------- 参考线 ----------------
+
+    // 参考线存世界坐标（attr worldPos），屏幕位置每次变换后重新换算
+    function placeGuide(g) {
+      if (g.getAttr('dir') === 'h') {
+        g.y(toScreen({ x: 0, y: g.getAttr('worldPos') }).y);
+      } else {
+        g.x(toScreen({ x: g.getAttr('worldPos'), y: 0 }).x);
+      }
+    }
+
+    function createGuide(dir) {
+      var g = new Konva.Line({
+        points: dir === 'h' ? [0, 0, stage.width(), 0] : [0, 0, 0, stage.height()],
+        stroke: '#ef4444', strokeWidth: 1, hitStrokeWidth: 9,
+        draggable: true, name: 'guide', dir: dir, worldPos: 0,
+        // 锁定一个轴：水平线只能上下动，竖直线只能左右动
+        dragBoundFunc: function (pos) {
+          return dir === 'h' ? { x: 0, y: pos.y } : { x: pos.x, y: 0 };
+        }
+      });
+      g.on('mouseenter', function () {
+        stage.container().style.cursor = dir === 'h' ? 'ns-resize' : 'ew-resize';
+      });
+      g.on('mouseleave', function () { stage.container().style.cursor = ''; });
+      g.on('dragmove', function () {
+        var p = dir === 'h' ? toWorld({ x: 0, y: g.y() }).y : toWorld({ x: g.x(), y: 0 }).x;
+        g.setAttr('worldPos', p);
+      });
+      g.on('dragend', function () {
+        // 拖回标尺上就删除
+        if ((dir === 'h' ? g.y() : g.x()) < RULER) {
+          stage.container().style.cursor = '';
+          g.destroy();
+        }
+      });
+      guides.add(g);
+      return g;
+    }
+
+    function startGuideDrag(dir, e) {
+      var pointer = stage.getPointerPosition();
+      var g = createGuide(dir);
+      if (dir === 'h') g.y(pointer.y); else g.x(pointer.x);
+      g.fire('dragmove');
+      g.startDrag(e);
+    }
+    topHit.on('pointerdown', function (e) { startGuideDrag('h', e); });
+    leftHit.on('pointerdown', function (e) { startGuideDrag('v', e); });
+
+    function refresh() {
+      guides.find('.guide').forEach(placeGuide);
+      rulerShape.getLayer().batchDraw();
+    }
+
+    // ---------------- 吸附 ----------------
+
+    world.on('dragmove', function (e) {
+      var node = e.target;
+      if (!node.hasName('item')) return;
+      var threshold = SNAP_PX / world.scaleX(); // 屏幕上的 6px 换算成世界单位
+      var box = node.getClientRect({ relativeTo: world });
+      guides.find('.guide').forEach(function (g) {
+        var p = g.getAttr('worldPos');
+        if (g.getAttr('dir') === 'h') {
+          [box.y, box.y + box.height / 2, box.y + box.height].some(function (edge) {
+            if (Math.abs(edge - p) < threshold) { node.y(node.y() + p - edge); return true; }
+          });
+        } else {
+          [box.x, box.x + box.width / 2, box.x + box.width].some(function (edge) {
+            if (Math.abs(edge - p) < threshold) { node.x(node.x() + p - edge); return true; }
+          });
+        }
+      });
+    });
+
+    // ---------------- 缩放与平移（只作用于 world） ----------------
+
+    stage.on('wheel', function (e) {
+      e.evt.preventDefault();
+      var old = world.scaleX();
+      var pointer = stage.getPointerPosition();
+      var anchor = toWorld(pointer);
+      var next = e.evt.deltaY > 0 ? old / 1.1 : old * 1.1;
+      next = Math.max(0.05, Math.min(40, next));
+      world.scale({ x: next, y: next });
+      world.position({ x: pointer.x - anchor.x * next, y: pointer.y - anchor.y * next });
+      refresh();
+    });
+
+    var panFrom = null;
+    stage.on('pointerdown', function (e) {
+      if (e.target === stage) {
+        panFrom = { pointer: stage.getPointerPosition(), world: world.position() };
+      }
+    });
+    stage.on('pointermove', function () {
+      if (!panFrom) return;
+      var p = stage.getPointerPosition();
+      world.position({
+        x: panFrom.world.x + p.x - panFrom.pointer.x,
+        y: panFrom.world.y + p.y - panFrom.pointer.y
+      });
+      refresh();
+    });
+    stage.on('pointerup pointercancel', function () { panFrom = null; });
+
+    // 初始留出标尺的位置
+    world.position({ x: RULER + 10, y: RULER + 10 });
+
+    // 预置一条竖直参考线，便于直接试吸附
+    var preset = createGuide('v');
+    preset.setAttr('worldPos', 200);
+    refresh();
+  </script>
+
+</body>
+</html>

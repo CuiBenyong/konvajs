@@ -108,15 +108,21 @@ stage.toDataURL({ pixelRatio: 3 });                        // 用于打印
 Canvas 没有 CSS 的 `font-display` 机制。浏览器会先用回退字体把文字画上去，
 自定义字体加载完成后**已经画上去的内容不会自动重绘**。
 
+只调 `layer.draw()` 不够：`Konva.Text` 的换行和基线在创建时就按回退字体算好了，
+重绘只换字形、不重排。正确做法是先加载字体再创建文字，已有节点则强制重排：
+
 ```js
-await document.fonts.ready;   // 等字体就绪再画
-layer.draw();
+// 第二个参数传实际要显示的文字
+await document.fonts.load('16px "Source Han Sans SC"', content);
+
+// 已有节点：设成相同的值不触发重排，先换一个值再换回来
+const family = text.fontFamily();
+text.fontFamily('');
+text.fontFamily(family);
 ```
 
-更麻烦的是布局：回退字体和目标字体的字宽不同，
-依赖 `text.width()` 做的居中、换行计算在字体切换前后是两组不同的结果。
-所以字体就绪后要**重新跑一遍布局计算**，而不只是 `draw()`。
-详见 [Text 文字](/docs/shapes/text)。
+你自己依赖 `text.width()` 做的居中、对齐计算也要在这之后重新跑一遍。
+实测数据与原因详见[中文字体加载](/docs/china/chinese-fonts)。
 
 ### 反序列化之后事件全没了？
 

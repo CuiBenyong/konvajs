@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva IME Text Editing Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #F0F0F0;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <script>
+    var FONT = '"PingFang SC", "Microsoft YaHei", sans-serif';
+
+    var stage = new Konva.Stage({
+      container: 'container',
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    var text = new Konva.Text({
+      x: 60, y: 90,
+      text: '双击编辑这段文字，试试用中文输入法打字，候选词上屏时按回车。',
+      fontSize: 20,
+      fontFamily: FONT,
+      lineHeight: 1.4,
+      padding: 4,
+      width: 280,
+      rotation: 4,
+      draggable: true
+    });
+    layer.add(text);
+
+    var tr = new Konva.Transformer({
+      nodes: [text],
+      enabledAnchors: ['middle-left', 'middle-right']
+    });
+    layer.add(tr);
+
+    // 改宽度而不是拉伸字形，见「缩放文字」一页
+    text.on('transform', function () {
+      text.setAttrs({ width: text.width() * text.scaleX(), scaleX: 1 });
+    });
+
+    var imeStatus = new Konva.Text({
+      x: 20, y: 20, fontSize: 14, fill: '#333', fontFamily: FONT,
+      text: '输入法：空闲'
+    });
+    layer.add(imeStatus);
+
+    // 组合状态与「最近一次回车」分开记：两类事件的先后顺序因浏览器而异，
+    // Chrome 先派发回车的 keydown 再派发 compositionend，Safari 反过来
+    var imeState = '空闲';
+    var lastEnter = '';
+    function renderStatus() {
+      imeStatus.text('输入法：' + imeState + (lastEnter ? '    最近一次回车：' + lastEnter : ''));
+    }
+
+    var editing = null;
+
+    text.on('dblclick dbltap', function () {
+      if (editing) return;
+      startEditing();
+    });
+
+    function startEditing() {
+      text.hide();
+      tr.hide();
+
+      var box = stage.container().getBoundingClientRect();
+      var pos = text.absolutePosition();
+      var scale = text.getAbsoluteScale();
+
+      var area = document.createElement('textarea');
+      document.body.appendChild(area);
+      area.value = text.text();
+
+      // 位置：舞台容器在页面中的位置 + 节点在舞台中的绝对位置 + 页面滚动
+      area.style.position = 'absolute';
+      area.style.left = (box.left + pos.x + window.scrollX) + 'px';
+      area.style.top = (box.top + pos.y + window.scrollY) + 'px';
+      // 尺寸与排版：宽度、字号、行高、内边距、字体都要和 Konva.Text 一致，
+      // 否则编辑态与显示态的换行不同，退出编辑时文字会「跳」一下
+      area.style.width = (text.width() * scale.x) + 'px';
+      area.style.height = (text.height() * scale.y + 8) + 'px';
+      area.style.fontSize = (text.fontSize() * scale.y) + 'px';
+      area.style.lineHeight = String(text.lineHeight());
+      area.style.fontFamily = text.fontFamily();
+      area.style.padding = (text.padding() * scale.x) + 'px';
+      area.style.margin = '0';
+      area.style.border = '1px dashed #3b82f6';
+      area.style.outline = 'none';
+      area.style.background = 'rgba(255,255,255,0.9)';
+      area.style.color = text.fill();
+      area.style.resize = 'none';
+      area.style.overflow = 'hidden';
+      area.style.boxSizing = 'border-box';
+      area.style.transformOrigin = 'left top';
+      area.style.transform = 'rotate(' + text.getAbsoluteRotation() + 'deg)';
+
+      // 必须在双击事件的同步调用栈里 focus，iOS 才会弹出软键盘
+      area.focus();
+      area.select();
+
+      area.addEventListener('compositionstart', function () {
+        imeState = '组合中';
+        renderStatus();
+      });
+      area.addEventListener('compositionend', function () {
+        imeState = '空闲';
+        renderStatus();
+      });
+
+      area.addEventListener('keydown', function (e) {
+        // 输入法组合输入期间的按键一律交给输入法。
+        // Safari 在确认候选词的那次回车上 isComposing 可能已是 false，
+        // 但 keyCode 仍为 229，两个条件缺一不可。
+        if (e.isComposing || e.keyCode === 229) {
+          if (e.key === 'Enter') {
+            lastEnter = '已忽略（在选候选词）';
+            renderStatus();
+          }
+          return;
+        }
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          lastEnter = '已提交';
+          renderStatus();
+          finish(true);
+        } else if (e.key === 'Escape') {
+          finish(false);
+        }
+      });
+
+      area.addEventListener('input', function () {
+        area.style.height = 'auto';
+        area.style.height = area.scrollHeight + 'px';
+      });
+
+      area.addEventListener('blur', function () {
+        finish(true);
+      });
+
+      editing = area;
+    }
+
+    function finish(commit) {
+      var area = editing;
+      if (!area) return;
+      editing = null;
+      if (commit) text.text(area.value);
+      area.remove();
+      text.show();
+      tr.show();
+      tr.forceUpdate();
+    }
+  </script>
+
+</body>
+</html>

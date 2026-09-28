@@ -43,6 +43,17 @@ module.exports = {
       problems.push(`llms.txt 有 ${withoutDesc} 条无摘要，与 sitemap.xml 相比失去增量价值`);
     }
 
+    // 「其他」只该收根级页（/docs/<page>）。章节页（/docs/<section>/<page>）
+    // 落进来，说明 plugins/llmsTxt.ts 的 SECTIONS 漏登记了该章节。
+    const rest = txt.split(/^## 其他$/m)[1];
+    if (rest) {
+      const nested = [...rest.matchAll(/\]\(https:\/\/[^/]+\/docs\/([^/)]+)\/[^)]+\)/g)].map((m) => m[1]);
+      const sections = [...new Set(nested)];
+      if (sections.length) {
+        problems.push(`llms.txt 的「其他」里有章节页，SECTIONS 漏登记：${sections.join('、')}`);
+      }
+    }
+
     if (!ctx.exists('llms-full.txt')) {
       problems.push('llms-full.txt 不存在');
     } else {
