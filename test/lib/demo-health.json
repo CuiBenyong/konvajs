@@ -1,5 +1,5 @@
 {
-  "total": 152,
+  "total": 153,
   "results": [
     {
       "file": "downloads/code/animations/Moving.html",
@@ -31,6 +31,13 @@
     },
     {
       "file": "downloads/code/animations/Text_Animations.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/china/Ime_Text_Editing.html",
       "ok": true,
       "errors": [],
       "canvasCount": 1,
