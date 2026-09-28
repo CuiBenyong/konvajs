@@ -1,5 +1,5 @@
 {
-  "total": 153,
+  "total": 154,
   "results": [
     {
       "file": "downloads/code/animations/Moving.html",
@@ -38,6 +38,13 @@
     },
     {
       "file": "downloads/code/china/Ime_Text_Editing.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/china/Webview_Canvas_Limits.html",
       "ok": true,
       "errors": [],
       "canvasCount": 1,
