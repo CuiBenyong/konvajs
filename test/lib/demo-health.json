@@ -1,5 +1,5 @@
 {
-  "total": 155,
+  "total": 156,
   "results": [
     {
       "file": "downloads/code/animations/Moving.html",
@@ -157,6 +157,13 @@
     },
     {
       "file": "downloads/code/drag_and_drop/Simple_Drag_Bounds.html",
+      "ok": true,
+      "errors": [],
+      "canvasCount": 1,
+      "painted": true
+    },
+    {
+      "file": "downloads/code/editor/Clipboard.html",
       "ok": true,
       "errors": [],
       "canvasCount": 1,
