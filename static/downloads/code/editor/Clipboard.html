@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Copy And Paste Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #F0F0F0;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <script>
+    var FONT = '"PingFang SC", "Microsoft YaHei", sans-serif';
+    // 剪贴板里的内容带上这个标记，粘贴时据此判断是不是自己写进去的
+    var CLIPBOARD_TYPE = 'konva-zh-demo/nodes';
+
+    var stage = new Konva.Stage({
+      container: 'container',
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    var uid = 0;
+    function nextId() {
+      uid += 1;
+      return 'node-' + uid;
+    }
+
+    layer.add(new Konva.Rect({
+      id: nextId(), name: 'item', x: 40, y: 90, width: 90, height: 70,
+      fill: '#60a5fa', cornerRadius: 6, draggable: true
+    }));
+    layer.add(new Konva.Star({
+      id: nextId(), name: 'item', x: 220, y: 125, numPoints: 5,
+      innerRadius: 20, outerRadius: 42, fill: '#fbbf24', draggable: true
+    }));
+
+    // 图片节点：image 属性是 DOM 对象，toObject() 不会序列化它，
+    // 所以另外用自定义属性 src 记下地址，还原时按地址重新加载
+    function loadImageNode(node) {
+      var img = new window.Image();
+      img.onload = function () { node.image(img); };
+      img.src = node.getAttr('src');
+    }
+    var lion = new Konva.Image({
+      id: nextId(), name: 'item', x: 300, y: 80, width: 90, height: 90, draggable: true
+    });
+    lion.setAttr('src', '/assets/lion.png');
+    loadImageNode(lion);
+    layer.add(lion);
+
+    var tr = new Konva.Transformer();
+    layer.add(tr);
+
+    var info = new Konva.Text({
+      x: 20, y: 16, fontSize: 13, fill: '#333', fontFamily: FONT, lineHeight: 1.5,
+      text: '点选图形后：Ctrl/⌘ + C 复制、Ctrl/⌘ + V 粘贴、Ctrl/⌘ + D 原地复制。\n也可以从别处复制一张图片，直接粘贴到画布上。'
+    });
+    var clipStatus = new Konva.Text({
+      x: 20, y: 56, fontSize: 13, fill: '#2563eb', fontFamily: FONT, text: '剪贴板：空'
+    });
+    layer.add(info, clipStatus);
+
+    stage.on('click tap', function (e) {
+      if (e.target === stage) return tr.nodes([]);
+      if (e.target.hasName('item')) tr.nodes([e.target]);
+    });
+
+    // ---- 复制 ----
+    // 系统剪贴板不一定可写，页面里再存一份
+    var memory = null;
+    var pasteCount = 0;
+
+    function serialize(nodes) {
+      return JSON.stringify({
+        type: CLIPBOARD_TYPE,
+        nodes: nodes.map(function (n) { return n.toObject(); })
+      });
+    }
+
+    document.addEventListener('copy', function (e) {
+      var nodes = tr.nodes();
+      if (!nodes.length) return;
+      var data = serialize(nodes);
+      // copy 事件里同步写入，不需要剪贴板权限，HTTP 页面也可用
+      e.clipboardData.setData('text/plain', data);
+      e.preventDefault();
+      memory = data;
+      pasteCount = 0;
+      clipStatus.text('剪贴板：' + nodes.length + ' 个节点');
+    });
+
+    // ---- 粘贴 ----
+    function restore(json) {
+      var parsed;
+      try { parsed = JSON.parse(json); } catch (err) { return false; }
+      if (!parsed || parsed.type !== CLIPBOARD_TYPE) return false;
+
+      pasteCount += 1;
+      var offset = 20 * pasteCount;
+      var created = parsed.nodes.map(function (obj) {
+        var node = Konva.Node.create(obj);
+        // id 必须重新生成：find('#id') 只返回第一个，重复的 id 会让选择错乱
+        node.id(nextId());
+        node.position({ x: node.x() + offset, y: node.y() + offset });
+        if (node.getAttr('src')) loadImageNode(node);
+        layer.add(node);
+        return node;
+      });
+      tr.moveToTop();
+      tr.nodes(created);
+      return true;
+    }
+
+    function pasteImageFile(file) {
+      var url = URL.createObjectURL(file);
+      var node = new Konva.Image({
+        id: nextId(), name: 'item', x: 60, y: 190, draggable: true
+      });
+      // object URL 只在当前页面有效；要跨页面复制，应先上传拿到正式地址
+      node.setAttr('src', url);
+      var img = new window.Image();
+      img.onload = function () {
+        var scale = Math.min(1, 160 / img.width, 160 / img.height);
+        node.setAttrs({ image: img, width: img.width * scale, height: img.height * scale });
+        tr.nodes([node]);
+      };
+      img.src = url;
+      layer.add(node);
+      tr.moveToTop();
+    }
+
+    document.addEventListener('paste', function (e) {
+      var items = e.clipboardData ? e.clipboardData.items : [];
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].kind === 'file' && items[i].type.indexOf('image/') === 0) {
+          e.preventDefault();
+          pasteImageFile(items[i].getAsFile());
+          clipStatus.text('剪贴板：已粘贴一张系统图片');
+          return;
+        }
+      }
+      var text = e.clipboardData ? e.clipboardData.getData('text/plain') : '';
+      if (restore(text || memory || '')) {
+        e.preventDefault();
+        clipStatus.text('剪贴板：已粘贴 ' + tr.nodes().length + ' 个节点');
+      }
+    });
+
+    // ---- 原地复制：画布内部直接 clone，不经过剪贴板 ----
+    window.addEventListener('keydown', function (e) {
+      var el = e.target;
+      if (e.isComposing || el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable) return;
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'd' && tr.nodes().length) {
+        e.preventDefault(); // 否则浏览器会弹出「添加书签」
+        var copies = tr.nodes().map(function (n) {
+          var c = n.clone({ id: nextId(), x: n.x() + 20, y: n.y() + 20 });
+          layer.add(c);
+          return c;
+        });
+        tr.moveToTop();
+        tr.nodes(copies);
+        clipStatus.text('原地复制了 ' + copies.length + ' 个节点');
+      }
+    });
+  </script>
+
+</body>
+</html>
