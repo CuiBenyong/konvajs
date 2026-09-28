@@ -106,7 +106,8 @@ export default defineNuxtConfig({
 
 实测也可以：插件在服务端注册组件本身不会报错，报错只发生在服务端**渲染** `v-stage` 时，
 只要 `v-stage` 被 `<ClientOnly>` 包住就没问题。但这些组件在服务端永远用不上，
-加上 `.client` 后缀可以让服务端包不再打进 vue-konva 和 Konva，构建更小、启动更快。
+加上 `.client` 后缀后服务端就不再加载它们。实测不加后缀时，构建产物的
+`.output/server/node_modules` 里会带上一份 `konva`；加上后缀，这份就不见了。
 
 ### fallback 里放什么？
 
